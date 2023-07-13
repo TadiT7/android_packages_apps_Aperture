@@ -3,14 +3,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.lineageos.aperture.utils
+package org.lineageos.aperturedebug.utils
 
 import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import android.content.res.Resources
 import android.media.MediaActionSound
 import android.os.Build
-import org.lineageos.aperture.ext.*
+import org.lineageos.aperturedebug.ext.*
 
 class CameraSoundsUtils(private val sharedPreferences: SharedPreferences) {
     private val mediaActionSound = MediaActionSound().apply {

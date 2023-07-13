@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.lineageos.aperture.ext
+package org.lineageos.aperturedebug.ext
 
 import androidx.camera.camera2.interop.Camera2CameraControl
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.TorchState
 import androidx.camera.view.CameraController
-import org.lineageos.aperture.camera.FlashMode
+import org.lineageos.aperturedebug.camera.FlashMode
 
 var CameraController.flashMode: FlashMode
     get() = when (torchState.value) {

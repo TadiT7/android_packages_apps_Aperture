@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.lineageos.aperture.ui
+package org.lineageos.aperturedebug.ui
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -11,7 +11,7 @@ import android.graphics.RectF
 import android.util.AttributeSet
 import android.util.Range
 import android.view.MotionEvent
-import org.lineageos.aperture.ext.*
+import org.lineageos.aperturedebug.ext.*
 
 class HorizontalSlider @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null

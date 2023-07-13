@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.lineageos.aperture.utils
+package org.lineageos.aperturedebug.utils
 
 import java.util.Locale
 import java.util.concurrent.TimeUnit

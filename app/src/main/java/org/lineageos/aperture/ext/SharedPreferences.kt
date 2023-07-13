@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.lineageos.aperture.ext
+package org.lineageos.aperturedebug.ext
 
 import android.content.SharedPreferences
 import android.net.Uri
@@ -12,19 +12,19 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.extensions.ExtensionMode
 import androidx.camera.video.Quality
 import androidx.core.content.edit
-import org.lineageos.aperture.camera.CameraFacing
-import org.lineageos.aperture.camera.CameraMode
-import org.lineageos.aperture.camera.ColorCorrectionAberrationMode
-import org.lineageos.aperture.camera.DistortionCorrectionMode
-import org.lineageos.aperture.camera.EdgeMode
-import org.lineageos.aperture.camera.FlashMode
-import org.lineageos.aperture.camera.FrameRate
-import org.lineageos.aperture.camera.HotPixelMode
-import org.lineageos.aperture.camera.NoiseReductionMode
-import org.lineageos.aperture.camera.ShadingMode
-import org.lineageos.aperture.utils.GestureActions
-import org.lineageos.aperture.utils.GridMode
-import org.lineageos.aperture.utils.TimerMode
+import org.lineageos.aperturedebug.camera.CameraFacing
+import org.lineageos.aperturedebug.camera.CameraMode
+import org.lineageos.aperturedebug.camera.ColorCorrectionAberrationMode
+import org.lineageos.aperturedebug.camera.DistortionCorrectionMode
+import org.lineageos.aperturedebug.camera.EdgeMode
+import org.lineageos.aperturedebug.camera.FlashMode
+import org.lineageos.aperturedebug.camera.FrameRate
+import org.lineageos.aperturedebug.camera.HotPixelMode
+import org.lineageos.aperturedebug.camera.NoiseReductionMode
+import org.lineageos.aperturedebug.camera.ShadingMode
+import org.lineageos.aperturedebug.utils.GestureActions
+import org.lineageos.aperturedebug.utils.GridMode
+import org.lineageos.aperturedebug.utils.TimerMode
 
 // Helpers
 internal fun SharedPreferences.getBoolean(key: String): Boolean? {

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.lineageos.aperture.utils
+package org.lineageos.aperturedebug.utils
 
 import android.graphics.Matrix
 import androidx.exifinterface.media.ExifInterface

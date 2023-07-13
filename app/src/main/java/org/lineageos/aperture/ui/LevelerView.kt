@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.lineageos.aperture.ui
+package org.lineageos.aperturedebug.ui
 
 import android.content.Context
 import android.graphics.Canvas
@@ -13,7 +13,7 @@ import android.util.AttributeSet
 import android.view.OrientationEventListener
 import android.view.OrientationEventListener.ORIENTATION_UNKNOWN
 import android.view.View
-import org.lineageos.aperture.R
+import org.lineageos.aperturedebug.R
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.min

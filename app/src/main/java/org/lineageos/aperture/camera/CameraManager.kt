@@ -3,15 +3,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.lineageos.aperture.camera
+package org.lineageos.aperturedebug.camera
 
 import android.content.Context
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.video.Quality
 import androidx.camera.view.LifecycleCameraController
-import org.lineageos.aperture.R
-import org.lineageos.aperture.ext.*
+import org.lineageos.aperturedebug.R
+import org.lineageos.aperturedebug.ext.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 

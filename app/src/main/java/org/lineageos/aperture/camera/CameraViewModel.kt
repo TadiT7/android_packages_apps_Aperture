@@ -3,16 +3,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.lineageos.aperture.camera
+package org.lineageos.aperturedebug.camera
 
 import androidx.camera.video.Quality
 import androidx.camera.video.Recording
 import androidx.camera.view.video.AudioConfig
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import org.lineageos.aperture.utils.GridMode
-import org.lineageos.aperture.utils.Rotation
-import org.lineageos.aperture.utils.TimerMode
+import org.lineageos.aperturedebug.utils.GridMode
+import org.lineageos.aperturedebug.utils.Rotation
+import org.lineageos.aperturedebug.utils.TimerMode
 
 /**
  * [ViewModel] representing a camera session. This data is used to receive

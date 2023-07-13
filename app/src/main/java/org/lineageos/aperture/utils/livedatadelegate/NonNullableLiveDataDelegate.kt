@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.lineageos.aperture.utils.livedatadelegate
+package org.lineageos.aperturedebug.utils.livedatadelegate
 
 import androidx.lifecycle.MutableLiveData
 import kotlin.reflect.KProperty

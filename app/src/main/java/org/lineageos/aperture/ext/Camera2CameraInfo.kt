@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.lineageos.aperture.ext
+package org.lineageos.aperturedebug.ext
 
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build

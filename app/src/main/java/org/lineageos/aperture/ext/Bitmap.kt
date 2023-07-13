@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.lineageos.aperture.ext
+package org.lineageos.aperturedebug.ext
 
 import android.graphics.Bitmap
 import androidx.core.graphics.scale
-import org.lineageos.aperture.utils.ExifUtils.Transform
+import org.lineageos.aperturedebug.utils.ExifUtils.Transform
 import kotlin.math.min
 
 /**

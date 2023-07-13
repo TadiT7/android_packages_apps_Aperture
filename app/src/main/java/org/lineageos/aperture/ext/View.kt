@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.lineageos.aperture.ext
+package org.lineageos.aperturedebug.ext
 
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
@@ -11,7 +11,7 @@ import android.view.animation.AlphaAnimation
 import android.view.animation.AnimationSet
 import android.view.animation.TranslateAnimation
 import androidx.core.view.isVisible
-import org.lineageos.aperture.utils.Rotation
+import org.lineageos.aperturedebug.utils.Rotation
 
 internal fun View.setPadding(value: Int) {
     setPadding(value, value, value, value)

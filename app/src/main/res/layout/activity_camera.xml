@@ -23,7 +23,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:scaleType="fitCenter" />
 
-    <org.lineageos.aperture.ui.PreviewBlurView
+    <org.lineageos.aperturedebug.ui.PreviewBlurView
         android:id="@+id/previewBlurView"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -46,7 +46,7 @@
         app:layout_constraintTop_toTopOf="@+id/viewFinder"
         tools:ignore="ContentDescription" />
 
-    <org.lineageos.aperture.ui.GridView
+    <org.lineageos.aperturedebug.ui.GridView
         android:id="@+id/gridView"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -55,7 +55,7 @@
         app:layout_constraintStart_toStartOf="@+id/viewFinder"
         app:layout_constraintTop_toTopOf="@+id/viewFinder" />
 
-    <org.lineageos.aperture.ui.LevelerView
+    <org.lineageos.aperturedebug.ui.LevelerView
         android:id="@+id/levelerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -64,7 +64,7 @@
         app:layout_constraintStart_toStartOf="@+id/viewFinder"
         app:layout_constraintTop_toTopOf="@+id/viewFinder" />
 
-    <org.lineageos.aperture.ui.InfoChipView
+    <org.lineageos.aperturedebug.ui.InfoChipView
         android:id="@+id/infoChipView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -76,7 +76,7 @@
         app:layout_constraintStart_toStartOf="@+id/viewFinder"
         app:layout_constraintTop_toTopOf="@+id/viewFinder" />
 
-    <org.lineageos.aperture.ui.CountDownView
+    <org.lineageos.aperturedebug.ui.CountDownView
         android:id="@+id/countDownView"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -86,7 +86,7 @@
         app:layout_constraintStart_toStartOf="@+id/viewFinder"
         app:layout_constraintTop_toTopOf="@+id/viewFinder" />
 
-    <org.lineageos.aperture.ui.HorizontalSlider
+    <org.lineageos.aperturedebug.ui.HorizontalSlider
         android:id="@+id/zoomLevel"
         android:layout_width="250dp"
         android:layout_height="32dp"
@@ -99,7 +99,7 @@
         app:thumbTextSize="10dp"
         app:trackColor="#7FCCCCCC" />
 
-    <org.lineageos.aperture.ui.VerticalSlider
+    <org.lineageos.aperturedebug.ui.VerticalSlider
         android:id="@+id/exposureLevel"
         android:layout_width="32dp"
         android:layout_height="250dp"
@@ -247,7 +247,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_pro_button" />
 
-        <org.lineageos.aperture.ui.LensSelectorLayout
+        <org.lineageos.aperturedebug.ui.LensSelectorLayout
             android:id="@+id/lensSelectorLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

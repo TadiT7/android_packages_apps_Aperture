@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.lineageos.aperture.ui
+package org.lineageos.aperturedebug.ui
 
 import android.content.Context
 import android.graphics.Rect
@@ -19,10 +19,10 @@ import androidx.annotation.IntRange
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.lifecycle.findViewTreeLifecycleOwner
-import org.lineageos.aperture.R
-import org.lineageos.aperture.camera.CameraViewModel
-import org.lineageos.aperture.ext.*
-import org.lineageos.aperture.utils.Rotation
+import org.lineageos.aperturedebug.R
+import org.lineageos.aperturedebug.camera.CameraViewModel
+import org.lineageos.aperturedebug.ext.*
+import org.lineageos.aperturedebug.utils.Rotation
 
 /**
  * This class manages the looks of the countdown.

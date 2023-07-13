@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.lineageos.aperture
+package org.lineageos.aperturedebug
 
 import android.app.Application
 import com.google.android.material.color.DynamicColors

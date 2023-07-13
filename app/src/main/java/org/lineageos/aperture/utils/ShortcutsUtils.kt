@@ -3,15 +3,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.lineageos.aperture.utils
+package org.lineageos.aperturedebug.utils
 
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
 import android.graphics.drawable.Icon
-import org.lineageos.aperture.CameraActivity
-import org.lineageos.aperture.R
+import org.lineageos.aperturedebug.CameraActivity
+import org.lineageos.aperturedebug.R
 
 object ShortcutsUtils {
     const val SHORTCUT_ID_SELFIE = "shortcut_selfie"

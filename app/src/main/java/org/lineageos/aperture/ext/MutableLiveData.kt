@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.lineageos.aperture.ext
+package org.lineageos.aperturedebug.ext
 
 import android.os.Looper
 import androidx.lifecycle.MutableLiveData
-import org.lineageos.aperture.utils.livedatadelegate.NonNullableLiveDataDelegate
-import org.lineageos.aperture.utils.livedatadelegate.NullableLiveDataDelegate
+import org.lineageos.aperturedebug.utils.livedatadelegate.NonNullableLiveDataDelegate
+import org.lineageos.aperturedebug.utils.livedatadelegate.NullableLiveDataDelegate
 
 /**
  * Set the value immediately if we're in the main thread, else it will post it to be set later.

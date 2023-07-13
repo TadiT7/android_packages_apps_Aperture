@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.lineageos.aperture.ui
+package org.lineageos.aperturedebug.ui
 
 import android.content.Context
 import android.graphics.Canvas
@@ -17,9 +17,9 @@ import android.graphics.RectF
 import android.graphics.Shader
 import android.util.AttributeSet
 import android.view.View
-import org.lineageos.aperture.R
-import org.lineageos.aperture.ext.*
-import org.lineageos.aperture.utils.Rotation
+import org.lineageos.aperturedebug.R
+import org.lineageos.aperturedebug.ext.*
+import org.lineageos.aperturedebug.utils.Rotation
 
 abstract class Slider @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0

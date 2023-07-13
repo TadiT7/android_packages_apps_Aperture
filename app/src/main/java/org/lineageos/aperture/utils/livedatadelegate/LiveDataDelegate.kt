@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.lineageos.aperture.utils.livedatadelegate
+package org.lineageos.aperturedebug.utils.livedatadelegate
 
 import androidx.lifecycle.MutableLiveData
-import org.lineageos.aperture.ext.setOrPostValue
+import org.lineageos.aperturedebug.ext.setOrPostValue
 import kotlin.reflect.KProperty
 
 abstract class LiveDataDelegate<T>(private val initializer: () -> MutableLiveData<T>) {

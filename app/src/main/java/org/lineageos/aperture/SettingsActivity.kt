@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.lineageos.aperture
+package org.lineageos.aperturedebug
 
 import android.annotation.SuppressLint
 import android.graphics.Color
@@ -19,8 +19,8 @@ import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
-import org.lineageos.aperture.utils.CameraSoundsUtils
-import org.lineageos.aperture.utils.PermissionsUtils
+import org.lineageos.aperturedebug.utils.CameraSoundsUtils
+import org.lineageos.aperturedebug.utils.PermissionsUtils
 
 class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

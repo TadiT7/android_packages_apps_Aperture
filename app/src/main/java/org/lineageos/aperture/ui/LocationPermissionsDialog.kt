@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.lineageos.aperture.ui
+package org.lineageos.aperturedebug.ui
 
 import android.app.Activity
 import android.app.Dialog
@@ -12,7 +12,7 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.Window
 import android.widget.Button
-import org.lineageos.aperture.R
+import org.lineageos.aperturedebug.R
 
 class LocationPermissionsDialog(activity: Activity) : Dialog(activity) {
     private val turnOnButton by lazy {

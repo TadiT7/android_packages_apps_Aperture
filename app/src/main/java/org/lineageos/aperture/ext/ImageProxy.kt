@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.lineageos.aperture.ext
+package org.lineageos.aperturedebug.ext
 
 import androidx.camera.core.ImageProxy
 import com.google.zxing.PlanarYUVLuminanceSource

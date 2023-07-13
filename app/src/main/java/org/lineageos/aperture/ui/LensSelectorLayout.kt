@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.lineageos.aperture.ui
+package org.lineageos.aperturedebug.ui
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -16,12 +16,12 @@ import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.view.children
 import androidx.core.view.setMargins
 import androidx.lifecycle.findViewTreeLifecycleOwner
-import org.lineageos.aperture.R
-import org.lineageos.aperture.camera.Camera
-import org.lineageos.aperture.camera.CameraState
-import org.lineageos.aperture.camera.CameraViewModel
-import org.lineageos.aperture.ext.*
-import org.lineageos.aperture.utils.Rotation
+import org.lineageos.aperturedebug.R
+import org.lineageos.aperturedebug.camera.Camera
+import org.lineageos.aperturedebug.camera.CameraState
+import org.lineageos.aperturedebug.camera.CameraViewModel
+import org.lineageos.aperturedebug.ext.*
+import org.lineageos.aperturedebug.utils.Rotation
 import java.util.Locale
 
 @androidx.camera.camera2.interop.ExperimentalCamera2Interop

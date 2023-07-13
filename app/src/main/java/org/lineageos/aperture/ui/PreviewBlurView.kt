@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.lineageos.aperture.ui
+package org.lineageos.aperturedebug.ui
 
 import android.content.Context
 import android.graphics.RenderEffect
@@ -12,7 +12,7 @@ import android.os.Build
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.camera.view.PreviewView
-import org.lineageos.aperture.ext.*
+import org.lineageos.aperturedebug.ext.*
 
 /**
  * Display a blurred viewfinder snapshot during camera rebind.

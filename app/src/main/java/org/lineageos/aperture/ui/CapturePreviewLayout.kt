@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.lineageos.aperture.ui
+package org.lineageos.aperturedebug.ui
 
 import android.content.Context
 import android.graphics.BitmapFactory
@@ -17,12 +17,12 @@ import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
-import org.lineageos.aperture.R
-import org.lineageos.aperture.camera.CameraViewModel
-import org.lineageos.aperture.ext.*
-import org.lineageos.aperture.utils.ExifUtils
-import org.lineageos.aperture.utils.MediaType
-import org.lineageos.aperture.utils.Rotation
+import org.lineageos.aperturedebug.R
+import org.lineageos.aperturedebug.camera.CameraViewModel
+import org.lineageos.aperturedebug.ext.*
+import org.lineageos.aperturedebug.utils.ExifUtils
+import org.lineageos.aperturedebug.utils.MediaType
+import org.lineageos.aperturedebug.utils.Rotation
 import java.io.InputStream
 
 /**

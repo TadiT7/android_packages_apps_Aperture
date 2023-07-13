@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.lineageos.aperture.ui
+package org.lineageos.aperturedebug.ui
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
@@ -17,10 +17,10 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.findViewTreeLifecycleOwner
-import org.lineageos.aperture.R
-import org.lineageos.aperture.camera.CameraMode
-import org.lineageos.aperture.camera.CameraViewModel
-import org.lineageos.aperture.utils.Rotation
+import org.lineageos.aperturedebug.R
+import org.lineageos.aperturedebug.camera.CameraMode
+import org.lineageos.aperturedebug.camera.CameraViewModel
+import org.lineageos.aperturedebug.utils.Rotation
 import kotlin.math.roundToInt
 
 class InfoChipView @JvmOverloads constructor(

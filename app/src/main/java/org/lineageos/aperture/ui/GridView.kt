@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.lineageos.aperture.ui
+package org.lineageos.aperturedebug.ui
 
 import android.content.Context
 import android.graphics.Canvas
@@ -14,7 +14,7 @@ import android.view.TextureView
 import android.view.View
 import androidx.camera.view.PreviewView
 import androidx.core.view.children
-import org.lineageos.aperture.utils.GridMode
+import org.lineageos.aperturedebug.utils.GridMode
 import kotlin.math.roundToInt
 
 /**

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.lineageos.aperture
+package org.lineageos.aperturedebug
 
 // Use a different activity for capture intents, so it can have a different
 // task affinity from others. This makes sure the regular camera activity is not

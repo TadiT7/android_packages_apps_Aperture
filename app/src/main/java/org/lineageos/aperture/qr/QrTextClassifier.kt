@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.lineageos.aperture.qr
+package org.lineageos.aperturedebug.qr
 
 import android.app.PendingIntent
 import android.app.RemoteAction
@@ -17,7 +17,7 @@ import android.os.LocaleList
 import android.provider.Settings
 import android.view.textclassifier.TextClassification
 import android.view.textclassifier.TextClassifier
-import org.lineageos.aperture.R
+import org.lineageos.aperturedebug.R
 
 class QrTextClassifier(
     private val context: Context, private val parent: TextClassifier
