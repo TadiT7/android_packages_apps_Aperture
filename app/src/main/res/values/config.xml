@@ -64,7 +64,7 @@
         <item>5</item> <item>sd|hd</item> <item>60|120|240|480</item>
         <item>5</item> <item>fhd</item> <item>60|120|240</item>
         <item>5</item> <item>uhd</item> <item>60</item>
-        <item>6</item> <item>sd|hd</item> <item>60</item>
+        <item>6</item> <item>sd|hd|fhd</item> <item>60</item>
     </string-array>
 
     <!-- An array of triplets made of (camera ID, approximate zoom ratio, exact zoom ratio).
