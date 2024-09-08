@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-     SPDX-FileCopyrightText: 2022-2023 The LineageOS Project
+     SPDX-FileCopyrightText: 2022-2024 The LineageOS Project
      SPDX-License-Identifier: Apache-2.0
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
@@ -37,9 +37,9 @@
     <string name="qr_copy_description">Kopiera till urklipp</string>
     <string name="qr_icon_description">Ikon</string>
     <string name="qr_share_description">Dela</string>
-    <string name="qr_wifi_title">Anslut till detta Wi\u2011Fi\u2011nätverk</string>
     <string name="qr_dpp_description">Konfigurera denna enheten</string>
     <string name="qr_text">Text</string>
+    <string name="qr_wifi_title">Anslut till detta Wi\u2011Fi\u2011nätverk</string>
     <string name="title_activity_settings">Inställningar</string>
     <string name="general_header">Generellt</string>
     <string name="photos_header">Foton</string>
@@ -85,6 +85,5 @@
     <string name="error_do_not_disturb_mode_enabled">Stör ej-läget är aktiverat. Inaktivera det och öppna appen igen.</string>
     <string name="gesture_action_shutter">Slutare</string>
     <string name="gesture_action_zoom">Zooma</string>
-    <string name="gesture_action_volume">Volym</string>
     <string name="gesture_action_nothing">Ingenting</string>
 </resources>

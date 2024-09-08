@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022-2023 The LineageOS Project
+ * SPDX-FileCopyrightText: 2022-2024 The LineageOS Project
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -8,6 +8,7 @@ package org.lineageos.aperture
 import android.animation.ValueAnimator
 import android.app.KeyguardManager
 import android.content.BroadcastReceiver
+import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -34,8 +35,6 @@ import android.view.GestureDetector
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.OrientationEventListener
-import android.view.ScaleGestureDetector
-import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Button
@@ -64,8 +63,10 @@ import androidx.camera.video.muted
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
+import androidx.camera.view.ScreenFlashView
 import androidx.camera.view.onPinchToZoom
 import androidx.camera.view.video.AudioConfig
+import androidx.camera.viewfinder.core.ZoomGestureDetector
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.animation.addListener
@@ -75,24 +76,27 @@ import androidx.core.location.LocationManagerCompat
 import androidx.core.location.LocationRequestCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
-import androidx.core.view.WindowCompat.getInsetsController
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.children
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.preference.PreferenceManager
 import coil.decode.VideoFrameDecoder
 import coil.load
 import coil.request.ErrorResult
 import coil.request.ImageRequest
-import coil.request.SuccessResult
 import coil.size.Scale
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
-import org.lineageos.aperture.camera.CameraManager
-import org.lineageos.aperture.camera.CameraViewModel
+import kotlinx.coroutines.withContext
 import org.lineageos.aperture.ext.*
 import org.lineageos.aperture.models.AssistantIntent
 import org.lineageos.aperture.models.CameraFacing
@@ -103,8 +107,9 @@ import org.lineageos.aperture.models.DistortionCorrectionMode
 import org.lineageos.aperture.models.EdgeMode
 import org.lineageos.aperture.models.FlashMode
 import org.lineageos.aperture.models.FrameRate
-import org.lineageos.aperture.models.GestureActions
+import org.lineageos.aperture.models.GestureAction
 import org.lineageos.aperture.models.GridMode
+import org.lineageos.aperture.models.HardwareKey
 import org.lineageos.aperture.models.HotPixelMode
 import org.lineageos.aperture.models.MediaType
 import org.lineageos.aperture.models.NoiseReductionMode
@@ -132,21 +137,25 @@ import org.lineageos.aperture.utils.CameraSoundsUtils
 import org.lineageos.aperture.utils.ExifUtils
 import org.lineageos.aperture.utils.GoogleLensUtils
 import org.lineageos.aperture.utils.MediaStoreUtils
+import org.lineageos.aperture.utils.PermissionsGatedCallback
 import org.lineageos.aperture.utils.PermissionsUtils
 import org.lineageos.aperture.utils.ShortcutsUtils
 import org.lineageos.aperture.utils.StorageUtils
+import org.lineageos.aperture.viewmodels.CameraViewModel
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.FileNotFoundException
 import java.io.InputStream
-import java.util.concurrent.ExecutorService
 import kotlin.math.abs
 import kotlin.reflect.safeCast
 import androidx.camera.core.CameraState as CameraXCameraState
 
 @androidx.camera.camera2.interop.ExperimentalCamera2Interop
 @androidx.camera.core.ExperimentalZeroShutterLag
-open class CameraActivity : AppCompatActivity() {
+open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
+    // View models
+    private val model: CameraViewModel by viewModels()
+
     // Views
     private val aspectRatioButton by lazy { findViewById<Button>(R.id.aspectRatioButton) }
     private val cameraModeSelectorLayout by lazy { findViewById<CameraModeSelectorLayout>(R.id.cameraModeSelectorLayout) }
@@ -156,8 +165,9 @@ open class CameraActivity : AppCompatActivity() {
     private val exposureLevel by lazy { findViewById<VerticalSlider>(R.id.exposureLevel) }
     private val flashButton by lazy { findViewById<ImageButton>(R.id.flashButton) }
     private val flipCameraButton by lazy { findViewById<ImageButton>(R.id.flipCameraButton) }
-    private val galleryButton by lazy { findViewById<ImageView>(R.id.galleryButton) }
     private val galleryButtonCardView by lazy { findViewById<CardView>(R.id.galleryButtonCardView) }
+    private val galleryButtonIconImageView by lazy { findViewById<ImageView>(R.id.galleryButtonIconImageView) }
+    private val galleryButtonPreviewImageView by lazy { findViewById<ImageView>(R.id.galleryButtonPreviewImageView) }
     private val googleLensButton by lazy { findViewById<ImageButton>(R.id.googleLensButton) }
     private val gridButton by lazy { findViewById<Button>(R.id.gridButton) }
     private val gridView by lazy { findViewById<GridView>(R.id.gridView) }
@@ -169,6 +179,7 @@ open class CameraActivity : AppCompatActivity() {
     private val previewBlurView by lazy { findViewById<PreviewBlurView>(R.id.previewBlurView) }
     private val primaryBarLayout by lazy { findViewById<ConstraintLayout>(R.id.primaryBarLayout) }
     private val proButton by lazy { findViewById<ImageButton>(R.id.proButton) }
+    private val screenFlashView by lazy { findViewById<ScreenFlashView>(R.id.screenFlashView) }
     private val secondaryBottomBarLayout by lazy { findViewById<ConstraintLayout>(R.id.secondaryBottomBarLayout) }
     private val secondaryTopBarLayout by lazy { findViewById<HorizontalScrollView>(R.id.secondaryTopBarLayout) }
     private val settingsButton by lazy { findViewById<Button>(R.id.settingsButton) }
@@ -188,26 +199,18 @@ open class CameraActivity : AppCompatActivity() {
     private val powerManager by lazy { getSystemService(PowerManager::class.java) }
 
     // Core camera utils
-    private lateinit var cameraManager: CameraManager
-    private val cameraController: LifecycleCameraController
-        get() = cameraManager.cameraController
-    private val cameraExecutor: ExecutorService
-        get() = cameraManager.cameraExecutor
+    private lateinit var cameraController: LifecycleCameraController
     private lateinit var cameraSoundsUtils: CameraSoundsUtils
     private val sharedPreferences by lazy {
         PreferenceManager.getDefaultSharedPreferences(this)
     }
     private val permissionsUtils by lazy { PermissionsUtils(this) }
 
-    // Current camera state
-    private val model: CameraViewModel by viewModels()
-
     private var camera by nonNullablePropertyDelegate { model.camera }
     private var cameraMode by nonNullablePropertyDelegate { model.cameraMode }
     private var singleCaptureMode by nonNullablePropertyDelegate { model.inSingleCaptureMode }
     private var cameraState by nonNullablePropertyDelegate { model.cameraState }
-    private val screenRotation
-        get() = model.screenRotation
+    private var screenRotation by nonNullablePropertyDelegate { model.screenRotation }
     private var gridMode by nonNullablePropertyDelegate { model.gridMode }
     private var flashMode by nonNullablePropertyDelegate { model.flashMode }
     private var timerMode by nonNullablePropertyDelegate { model.timerMode }
@@ -223,13 +226,20 @@ open class CameraActivity : AppCompatActivity() {
 
     private lateinit var initialCameraFacing: CameraFacing
 
-    private var tookSomething: Boolean = false
-        set(value) {
-            field = value
-            updateGalleryButton()
-        }
+    /**
+     * The currently shown URI.
+     */
+    private var galleryButtonUri: Uri? = null
+
+    /**
+     * Medias captured from secure activity will be stored here
+     */
+    private val secureMediaUris = mutableListOf<Uri>()
 
     private var zoomGestureMutex = Mutex()
+
+    private val supportedFlashModes: Set<FlashMode>
+        get() = cameraMode.supportedFlashModes.intersect(camera.supportedFlashModes)
 
     // Video
     private val supportedVideoQualities: Set<Quality>
@@ -243,7 +253,7 @@ open class CameraActivity : AppCompatActivity() {
     private lateinit var videoAudioConfig: AudioConfig
 
     // QR
-    private val imageAnalyzer by lazy { QrImageAnalyzer(this) }
+    private val imageAnalyzer by lazy { QrImageAnalyzer(this, lifecycleScope) }
     private val isGoogleLensAvailable by lazy { GoogleLensUtils.isGoogleLensAvailable(this) }
 
     private var viewFinderTouchEvent: MotionEvent? = null
@@ -255,50 +265,65 @@ open class CameraActivity : AppCompatActivity() {
             }
 
             override fun onFling(
-                e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float
+                e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float
             ): Boolean {
-                if (!handler.hasMessages(MSG_ON_PINCH_TO_ZOOM) &&
-                    abs(e1.x - e2.x) > 75 * resources.displayMetrics.density
-                ) {
-                    if (e2.x > e1.x) {
-                        // Left to right
-                        changeCameraMode(cameraMode.previous())
-                    } else {
-                        // Right to left
-                        changeCameraMode(cameraMode.next())
+                return e1?.let {
+                    if (!handler.hasMessages(MSG_ON_PINCH_TO_ZOOM) &&
+                        abs(it.x - e2.x) > 75 * resources.displayMetrics.density
+                    ) {
+                        if (e2.x > it.x) {
+                            // Left to right
+                            cameraMode.previous()?.let { cameraMode ->
+                                changeCameraMode(cameraMode)
+                            }
+                        } else {
+                            // Right to left
+                            cameraMode.next()?.let { cameraMode ->
+                                changeCameraMode(cameraMode)
+                            }
+                        }
                     }
+                    true
+                } ?: false
+            }
+        })
+    }
+    private val zoomGestureDetector by lazy {
+        ZoomGestureDetector(this) {
+            when (it) {
+                is ZoomGestureDetector.ZoomEvent.Begin -> {
+                    zoomGestureDetectorIsInProgress = true
                 }
-                return true
-            }
-        })
-    }
-    private val scaleGestureDetector by lazy {
-        ScaleGestureDetector(this, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
-            override fun onScale(detector: ScaleGestureDetector): Boolean {
-                cameraController.onPinchToZoom(detector.scaleFactor)
 
-                handler.removeMessages(MSG_ON_PINCH_TO_ZOOM)
-                handler.sendMessageDelayed(handler.obtainMessage(MSG_ON_PINCH_TO_ZOOM), 500)
+                is ZoomGestureDetector.ZoomEvent.Move -> {
+                    cameraController.onPinchToZoom(it.incrementalScaleFactor)
+                    handler.removeMessages(MSG_ON_PINCH_TO_ZOOM)
+                    handler.sendMessageDelayed(handler.obtainMessage(MSG_ON_PINCH_TO_ZOOM), 500)
+                }
 
-                return true
+                is ZoomGestureDetector.ZoomEvent.End -> {
+                    zoomGestureDetectorIsInProgress = false
+                }
             }
-        })
+            true
+        }
     }
+    private var zoomGestureDetectorIsInProgress = false
 
     private val handler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
             super.handleMessage(msg)
             when (msg.what) {
                 MSG_HIDE_ZOOM_SLIDER -> {
-                    zoomLevel.visibility = View.GONE
+                    zoomLevel.isVisible = false
                 }
 
                 MSG_HIDE_FOCUS_RING -> {
-                    viewFinderFocus.visibility = View.GONE
+                    viewFinderFocus.isVisible = false
                 }
 
                 MSG_HIDE_EXPOSURE_SLIDER -> {
-                    exposureLevel.visibility = View.GONE
+                    exposureLevel.isVisible = false
                 }
             }
         }
@@ -350,39 +375,23 @@ open class CameraActivity : AppCompatActivity() {
         }
     }
 
-    private val mainPermissionsRequestOnStartLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) {
-        if (it.isNotEmpty()) {
-            if (!permissionsUtils.mainPermissionsGranted()) {
-                Toast.makeText(
-                    this, getString(R.string.app_permissions_toast), Toast.LENGTH_SHORT
-                ).show()
-                finish()
-                return@registerForActivityResult
+    private val permissionsGatedCallbackOnStart = PermissionsGatedCallback(this) {
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.capturedMedia.collectLatest {
+                    updateGalleryButton(it.firstOrNull(), false)
+                }
             }
+        }
 
-            // This is a good time to ask the user for location permissions
-            if (sharedPreferences.saveLocation == null) {
-                locationPermissionsDialog.show()
-            }
+        // This is a good time to ask the user for location permissions
+        if (sharedPreferences.saveLocation == null) {
+            locationPermissionsDialog.show()
         }
     }
 
-    private val mainPermissionsRequestLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) {
-        if (it.isNotEmpty()) {
-            if (!permissionsUtils.mainPermissionsGranted()) {
-                Toast.makeText(
-                    this, getString(R.string.app_permissions_toast), Toast.LENGTH_SHORT
-                ).show()
-                finish()
-                return@registerForActivityResult
-            }
-
-            bindCameraUseCases()
-        }
+    private val permissionsGatedCallback = PermissionsGatedCallback(this) {
+        bindCameraUseCases()
     }
 
     private val locationPermissionsRequestLauncher = registerForActivityResult(
@@ -412,8 +421,8 @@ open class CameraActivity : AppCompatActivity() {
 
                 val rotation = Rotation.fromDegreesInAperture(orientation)
 
-                if (screenRotation.value != rotation) {
-                    screenRotation.value = rotation
+                if (screenRotation != rotation) {
+                    screenRotation = rotation
                 }
             }
         }
@@ -446,12 +455,12 @@ open class CameraActivity : AppCompatActivity() {
 
                 PowerManager.THERMAL_STATUS_EMERGENCY -> {
                     showSnackBar(R.string.thermal_status_emergency)
-                    emergencyClose()
+                    finish()
                 }
 
                 PowerManager.THERMAL_STATUS_SHUTDOWN -> {
                     showSnackBar(R.string.thermal_status_shutdown)
-                    emergencyClose()
+                    finish()
                 }
             }
         }
@@ -539,11 +548,14 @@ open class CameraActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        hideStatusBars()
-
-        setContentView(R.layout.activity_camera)
-
+        // Setup edge-to-edge
         WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        // Hide the status bars
+        window.updateBarsVisibility(
+            WindowInsetsControllerCompat.BEHAVIOR_DEFAULT,
+            statusBars = false,
+        )
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1
             && keyguardManager.isKeyguardLocked
@@ -557,8 +569,8 @@ open class CameraActivity : AppCompatActivity() {
         // Register shortcuts
         ShortcutsUtils.registerShortcuts(this)
 
-        // Initialize camera manager
-        cameraManager = CameraManager(this)
+        // Initialize the camera controller
+        cameraController = LifecycleCameraController(this)
 
         // Initialize sounds utils
         cameraSoundsUtils = CameraSoundsUtils(sharedPreferences)
@@ -598,20 +610,26 @@ open class CameraActivity : AppCompatActivity() {
             }
         }
 
-        if (cameraMode == CameraMode.VIDEO && !cameraManager.videoRecordingAvailable()) {
+        if (cameraMode == CameraMode.VIDEO && !model.videoRecordingAvailable()) {
             // If an app asked for a video we have to bail out
             if (singleCaptureMode) {
                 Toast.makeText(
                     this, getString(R.string.camcorder_unsupported_toast), Toast.LENGTH_LONG
                 ).show()
                 finish()
+                return
             }
             // Fallback to photo mode
             cameraMode = CameraMode.PHOTO
         }
 
         // Select a camera
-        camera = cameraManager.getCameraOfFacingOrFirstAvailable(initialCameraFacing, cameraMode)
+        camera = model.getCameraOfFacingOrFirstAvailable(
+            initialCameraFacing, cameraMode
+        ) ?: run {
+            noCamera()
+            return
+        }
 
         // Setup window insets
         ViewCompat.setOnApplyWindowInsetsListener(mainLayout) { _, windowInsets ->
@@ -647,18 +665,15 @@ open class CameraActivity : AppCompatActivity() {
         proButton.setOnClickListener {
             secondaryTopBarLayout.slide()
         }
-        flashButton.setOnClickListener { cycleFlashMode() }
-        flashButton.setOnLongClickListener {
-            if (cameraMode == CameraMode.PHOTO) {
-                toggleForceTorch()
-                true
-            } else {
-                false
-            }
-        }
+        flashButton.setOnClickListener { cycleFlashMode(false) }
+        flashButton.setOnLongClickListener { cycleFlashMode(true) }
 
         // Attach CameraController to PreviewView
         viewFinder.controller = cameraController
+
+        // Attach CameraController to ScreenFlashView
+        screenFlashView.setController(cameraController)
+        screenFlashView.setScreenFlashWindow(window)
 
         // Observe torch state
         cameraController.torchState.observe(this) {
@@ -669,7 +684,7 @@ open class CameraActivity : AppCompatActivity() {
         cameraController.tapToFocusState.observe(this) {
             when (it) {
                 CameraController.TAP_TO_FOCUS_STARTED -> {
-                    viewFinderFocus.visibility = View.VISIBLE
+                    viewFinderFocus.isVisible = true
                     handler.removeMessages(MSG_HIDE_FOCUS_RING)
                     ValueAnimator.ofInt(0.px, 8.px).apply {
                         addUpdateListener { anim ->
@@ -693,7 +708,7 @@ open class CameraActivity : AppCompatActivity() {
 
         // Observe manual focus
         viewFinder.setOnTouchListener { _, event ->
-            if (scaleGestureDetector.onTouchEvent(event) && scaleGestureDetector.isInProgress) {
+            if (zoomGestureDetector.onTouchEvent(event) && zoomGestureDetectorIsInProgress) {
                 return@setOnTouchListener true
             }
             return@setOnTouchListener gestureDetector.onTouchEvent(event)
@@ -747,7 +762,7 @@ open class CameraActivity : AppCompatActivity() {
             }
 
             zoomLevel.progress = it.linearZoom
-            zoomLevel.visibility = View.VISIBLE
+            zoomLevel.isVisible = true
 
             handler.removeMessages(MSG_HIDE_ZOOM_SLIDER)
             handler.sendMessageDelayed(handler.obtainMessage(MSG_HIDE_ZOOM_SLIDER), 2000)
@@ -825,7 +840,7 @@ open class CameraActivity : AppCompatActivity() {
             }
         }
 
-        galleryButton.setOnClickListener { openGallery() }
+        galleryButtonCardView.setOnClickListener { openGallery() }
 
         // Set lens switching callback
         lensSelectorLayout.onCameraChangeCallback = {
@@ -835,7 +850,10 @@ open class CameraActivity : AppCompatActivity() {
             }
         }
         lensSelectorLayout.onZoomRatioChangeCallback = {
-            cameraController.setZoomRatio(it)
+            smoothZoom(it)
+        }
+        lensSelectorLayout.onResetZoomRatioCallback = {
+            resetZoom()
         }
 
         // Set capture preview callback
@@ -862,11 +880,6 @@ open class CameraActivity : AppCompatActivity() {
 
         // Observe camera
         model.camera.observe(this) {
-            val camera = it ?: return@observe
-
-            // Update secondary bar buttons
-            flashButton.isVisible = camera.hasFlashUnit
-
             updateSecondaryTopBarButtons()
         }
 
@@ -916,7 +929,7 @@ open class CameraActivity : AppCompatActivity() {
             updateSecondaryTopBarButtons()
 
             // Update primary bar buttons
-            galleryButton.isEnabled = cameraState == CameraState.IDLE
+            galleryButtonCardView.isEnabled = cameraState == CameraState.IDLE
             // Shutter button must stay enabled
             flipCameraButton.isEnabled = cameraState == CameraState.IDLE
             videoRecordingStateButton.isVisible = cameraState.isRecordingVideo
@@ -939,7 +952,8 @@ open class CameraActivity : AppCompatActivity() {
                         FlashMode.OFF -> R.drawable.ic_flash_off
                         FlashMode.AUTO -> R.drawable.ic_flash_auto
                         FlashMode.ON -> R.drawable.ic_flash_on
-                        FlashMode.TORCH -> R.drawable.ic_flash_torch
+                        FlashMode.TORCH -> R.drawable.ic_flashlight_on
+                        FlashMode.SCREEN -> R.drawable.ic_flash_screen
                     }
                 )
             )
@@ -953,10 +967,10 @@ open class CameraActivity : AppCompatActivity() {
             gridButton.setCompoundDrawablesWithIntrinsicBounds(
                 0,
                 when (gridMode) {
-                    GridMode.OFF -> R.drawable.ic_grid_off
-                    GridMode.ON_3 -> R.drawable.ic_grid_on_3
-                    GridMode.ON_4 -> R.drawable.ic_grid_on_4
-                    GridMode.ON_GOLDEN_RATIO -> R.drawable.ic_grid_on_goldenratio
+                    GridMode.OFF -> R.drawable.ic_grid_3x3_off
+                    GridMode.ON_3 -> R.drawable.ic_grid_3x3
+                    GridMode.ON_4 -> R.drawable.ic_grid_4x4
+                    GridMode.ON_GOLDEN_RATIO -> R.drawable.ic_grid_goldenratio
                 },
                 0,
                 0
@@ -980,8 +994,8 @@ open class CameraActivity : AppCompatActivity() {
                 0,
                 when (timerMode) {
                     TimerMode.OFF -> R.drawable.ic_timer_off
-                    TimerMode.ON_3S -> R.drawable.ic_timer_3
-                    TimerMode.ON_10S -> R.drawable.ic_timer_10
+                    TimerMode.ON_3S -> R.drawable.ic_timer_3_alt_1
+                    TimerMode.ON_10S -> R.drawable.ic_timer_10_alt_1
                 },
                 0,
                 0
@@ -1006,16 +1020,6 @@ open class CameraActivity : AppCompatActivity() {
             val photoAspectRatio = it ?: return@observe
 
             // Update secondary bar buttons
-            aspectRatioButton.setCompoundDrawablesWithIntrinsicBounds(
-                0,
-                when (photoAspectRatio) {
-                    AspectRatio.RATIO_4_3 -> R.drawable.ic_aspect_ratio_4_3
-                    AspectRatio.RATIO_16_9 -> R.drawable.ic_aspect_ratio_16_9
-                    else -> throw Exception("Unknown aspect ratio $it")
-                },
-                0,
-                0
-            )
             aspectRatioButton.text = resources.getText(
                 when (photoAspectRatio) {
                     AspectRatio.RATIO_4_3 -> R.string.aspect_ratio_4_3
@@ -1033,13 +1037,13 @@ open class CameraActivity : AppCompatActivity() {
             effectButton.setCompoundDrawablesWithIntrinsicBounds(
                 0,
                 when (photoEffect) {
-                    ExtensionMode.NONE -> R.drawable.ic_effect_none
+                    ExtensionMode.NONE -> R.drawable.ic_blur_off
                     ExtensionMode.BOKEH -> R.drawable.ic_effect_bokeh
-                    ExtensionMode.HDR -> R.drawable.ic_effect_hdr
-                    ExtensionMode.NIGHT -> R.drawable.ic_effect_night
-                    ExtensionMode.FACE_RETOUCH -> R.drawable.ic_effect_face_retouch
-                    ExtensionMode.AUTO -> R.drawable.ic_effect_auto
-                    else -> R.drawable.ic_effect_none
+                    ExtensionMode.HDR -> R.drawable.ic_hdr_on
+                    ExtensionMode.NIGHT -> R.drawable.ic_clear_night
+                    ExtensionMode.FACE_RETOUCH -> R.drawable.ic_face_retouching_natural
+                    ExtensionMode.AUTO -> R.drawable.ic_hdr_auto
+                    else -> R.drawable.ic_blur_off
                 },
                 0,
                 0
@@ -1065,10 +1069,10 @@ open class CameraActivity : AppCompatActivity() {
             videoQualityButton.setCompoundDrawablesWithIntrinsicBounds(
                 0,
                 when (videoQuality) {
-                    Quality.SD -> R.drawable.ic_video_quality_sd
-                    Quality.HD -> R.drawable.ic_video_quality_hd
-                    Quality.FHD -> R.drawable.ic_video_quality_hd
-                    Quality.UHD -> R.drawable.ic_video_quality_uhd
+                    Quality.SD -> R.drawable.ic_sd
+                    Quality.HD -> R.drawable.ic_hd
+                    Quality.FHD -> R.drawable.ic_full_hd
+                    Quality.UHD -> R.drawable.ic_4k
                     else -> throw Exception("Unknown video quality $it")
                 },
                 0,
@@ -1130,11 +1134,7 @@ open class CameraActivity : AppCompatActivity() {
         }
 
         // Request camera permissions
-        if (!permissionsUtils.mainPermissionsGranted()) {
-            mainPermissionsRequestOnStartLauncher.launch(PermissionsUtils.mainPermissions)
-        } else if (sharedPreferences.saveLocation == null) {
-            locationPermissionsDialog.show()
-        }
+        permissionsGatedCallbackOnStart.runAfterPermissionsCheck()
     }
 
     override fun onResume() {
@@ -1145,9 +1145,6 @@ open class CameraActivity : AppCompatActivity() {
 
         // Set leveler
         setLeveler(sharedPreferences.leveler)
-
-        // Reset tookSomething state
-        tookSomething = false
 
         // Register location updates
         locationListener.register()
@@ -1163,13 +1160,8 @@ open class CameraActivity : AppCompatActivity() {
         // Start observing battery status
         registerReceiver(batteryBroadcastReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
 
-        // Re-request camera permissions in case the user revoked them on app runtime
-        if (!permissionsUtils.mainPermissionsGranted()) {
-            mainPermissionsRequestLauncher.launch(PermissionsUtils.mainPermissions)
-        } else {
-            // If we already have the permission, re-bind the use cases
-            bindCameraUseCases()
-        }
+        // Check again for permissions and re-bind the use cases
+        permissionsGatedCallback.runAfterPermissionsCheck()
     }
 
     override fun onPause() {
@@ -1191,102 +1183,19 @@ open class CameraActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        model.shutdown()
+
         super.onDestroy()
-        cameraManager.shutdown()
     }
 
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        return if (capturePreviewLayout.isVisible) {
-            super.onKeyDown(keyCode, event)
-        } else when (keyCode) {
-            KeyEvent.KEYCODE_FOCUS -> {
-                if (event?.repeatCount == 1) {
-                    viewFinderTouchEvent = null
-                    viewFinder.performClick()
-                }
-                true
-            }
-
-            KeyEvent.KEYCODE_CAMERA -> {
-                if (cameraMode == CameraMode.VIDEO && shutterButton.isEnabled &&
-                    event?.repeatCount == 1
-                ) {
-                    shutterButton.performClick()
-                }
-                true
-            }
-
-            KeyEvent.KEYCODE_VOLUME_UP,
-            KeyEvent.KEYCODE_VOLUME_DOWN -> when (sharedPreferences.volumeButtonsAction) {
-                GestureActions.SHUTTER -> {
-                    if (cameraMode == CameraMode.VIDEO && shutterButton.isEnabled &&
-                        event?.repeatCount == 1
-                    ) {
-                        shutterButton.performClick()
-                    }
-                    true
-                }
-
-                GestureActions.ZOOM -> {
-                    when (keyCode) {
-                        KeyEvent.KEYCODE_VOLUME_UP -> zoomIn()
-                        KeyEvent.KEYCODE_VOLUME_DOWN -> zoomOut()
-                    }
-                    true
-                }
-
-                GestureActions.VOLUME -> {
-                    super.onKeyDown(keyCode, event)
-                }
-
-                GestureActions.NOTHING -> {
-                    // Do nothing
-                    true
-                }
-            }
-
-            else -> super.onKeyDown(keyCode, event)
-        }
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?) = when (capturePreviewLayout.isVisible) {
+        true -> super.onKeyDown(keyCode, event)
+        false -> handleHardwareKeyDown(keyCode, event) ?: super.onKeyDown(keyCode, event)
     }
 
-    override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
-        return if (capturePreviewLayout.isVisible) {
-            super.onKeyUp(keyCode, event)
-        } else when (keyCode) {
-            KeyEvent.KEYCODE_CAMERA -> {
-                if (cameraMode != CameraMode.QR && shutterButton.isEnabled) {
-                    shutterButton.performClick()
-                }
-                true
-            }
-
-            KeyEvent.KEYCODE_VOLUME_UP,
-            KeyEvent.KEYCODE_VOLUME_DOWN -> {
-                when (sharedPreferences.volumeButtonsAction) {
-                    GestureActions.SHUTTER -> {
-                        if (cameraMode != CameraMode.QR && shutterButton.isEnabled) {
-                            shutterButton.performClick()
-                        }
-                        true
-                    }
-
-                    GestureActions.ZOOM -> {
-                        true
-                    }
-
-                    GestureActions.VOLUME -> {
-                        super.onKeyDown(keyCode, event)
-                    }
-
-                    GestureActions.NOTHING -> {
-                        // Do nothing
-                        true
-                    }
-                }
-            }
-
-            else -> super.onKeyUp(keyCode, event)
-        }
+    override fun onKeyUp(keyCode: Int, event: KeyEvent?) = when (capturePreviewLayout.isVisible) {
+        true -> super.onKeyUp(keyCode, event)
+        false -> handleHardwareKeyUp(keyCode, event) ?: super.onKeyUp(keyCode, event)
     }
 
     /**
@@ -1364,13 +1273,7 @@ open class CameraActivity : AppCompatActivity() {
             outputOptions,
             ContextCompat.getMainExecutor(this),
             object : ImageCapture.OnImageSavedCallback {
-                override fun onError(exc: ImageCaptureException) {
-                    Log.e(LOG_TAG, "Photo capture failed: ${exc.message}", exc)
-                    cameraState = CameraState.IDLE
-                    shutterButton.isEnabled = true
-                }
-
-                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                override fun onCaptureStarted() {
                     cameraSoundsUtils.playShutterClick()
                     viewFinder.foreground = ColorDrawable(Color.BLACK)
                     ValueAnimator.ofInt(0, 255, 0).apply {
@@ -1378,12 +1281,20 @@ open class CameraActivity : AppCompatActivity() {
                             viewFinder.foreground.alpha = anim.animatedValue as Int
                         }
                     }.start()
+                }
+
+                override fun onError(exc: ImageCaptureException) {
+                    Log.e(LOG_TAG, "Photo capture failed: ${exc.message}", exc)
+                    cameraState = CameraState.IDLE
+                    shutterButton.isEnabled = true
+                }
+
+                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     Log.d(LOG_TAG, "Photo capture succeeded: ${output.savedUri}")
                     cameraState = CameraState.IDLE
                     shutterButton.isEnabled = true
                     if (!singleCaptureMode) {
-                        sharedPreferences.lastSavedUri = output.savedUri
-                        tookSomething = true
+                        onCapturedMedia(output.savedUri)
                         output.savedUri?.let {
                             BroadcastUtils.broadcastNewPicture(this@CameraActivity, it)
                         }
@@ -1431,7 +1342,7 @@ open class CameraActivity : AppCompatActivity() {
             videoRecording = cameraController.startRecording(
                 outputOptions,
                 videoAudioConfig,
-                cameraExecutor
+                model.cameraExecutor
             ) {
                 when (it) {
                     is VideoRecordEvent.Start -> runOnUiThread {
@@ -1461,8 +1372,7 @@ open class CameraActivity : AppCompatActivity() {
                         if (it.error != VideoRecordEvent.Finalize.ERROR_NO_VALID_DATA) {
                             Log.d(LOG_TAG, "Video capture succeeded: ${it.outputResults.outputUri}")
                             if (!singleCaptureMode) {
-                                sharedPreferences.lastSavedUri = it.outputResults.outputUri
-                                tookSomething = true
+                                onCapturedMedia(it.outputResults.outputUri)
                                 BroadcastUtils.broadcastNewVideo(this, it.outputResults.outputUri)
                             } else {
                                 openCapturePreview(it.outputResults.outputUri, MediaType.VIDEO)
@@ -1499,19 +1409,25 @@ open class CameraActivity : AppCompatActivity() {
 
         // Get the desired camera
         camera = when (cameraMode) {
-            CameraMode.QR -> cameraManager.getCameraOfFacingOrFirstAvailable(
+            CameraMode.QR -> model.getCameraOfFacingOrFirstAvailable(
                 CameraFacing.BACK, cameraMode
             )
 
             else -> camera
+        } ?: run {
+            noCamera()
+            return
         }
 
         // If the current camera doesn't support the selected camera mode
         // pick a different one, giving priority to camera facing
         if (!camera.supportsCameraMode(cameraMode)) {
-            camera = cameraManager.getCameraOfFacingOrFirstAvailable(
+            camera = model.getCameraOfFacingOrFirstAvailable(
                 camera.cameraFacing, cameraMode
-            )
+            ) ?: run {
+                noCamera()
+                return
+            }
         }
 
         // Fallback to ExtensionMode.NONE if necessary
@@ -1519,10 +1435,15 @@ open class CameraActivity : AppCompatActivity() {
             photoEffect = ExtensionMode.NONE
         }
 
+        // Fallback to FlashMode.OFF if necessary
+        if (!camera.supportedFlashModes.contains(flashMode)) {
+            changeFlashMode(FlashMode.OFF)
+        }
+
         // Initialize the use case we want and set its properties
         val cameraUseCases = when (cameraMode) {
             CameraMode.QR -> {
-                cameraController.setImageAnalysisAnalyzer(cameraExecutor, imageAnalyzer)
+                cameraController.setImageAnalysisAnalyzer(model.cameraExecutor, imageAnalyzer)
                 CameraController.IMAGE_ANALYSIS
             }
 
@@ -1534,7 +1455,7 @@ open class CameraActivity : AppCompatActivity() {
                         )
                     )
                     .setAllowedResolutionMode(
-                        if (cameraManager.enableHighResolution) {
+                        if (model.overlayConfiguration.enableHighResolution) {
                             ResolutionSelector.PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE
                         } else {
                             ResolutionSelector.PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION
@@ -1586,7 +1507,7 @@ open class CameraActivity : AppCompatActivity() {
             cameraMode == CameraMode.PHOTO &&
             photoCaptureMode != ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG
         ) {
-            cameraManager.extensionsManager.getExtensionEnabledCameraSelector(
+            model.extensionsManager.getExtensionEnabledCameraSelector(
                 camera.cameraSelector, photoEffect
             )
         } else {
@@ -1798,7 +1719,7 @@ open class CameraActivity : AppCompatActivity() {
                 CameraMode.PHOTO -> sharedPreferences.photoFlashMode
                 CameraMode.VIDEO -> sharedPreferences.videoFlashMode
                 CameraMode.QR -> FlashMode.OFF
-            }
+            }.takeIf { supportedFlashModes.contains(it) } ?: FlashMode.OFF
         )
         setMicrophoneMode(videoMicMode)
 
@@ -1809,7 +1730,7 @@ open class CameraActivity : AppCompatActivity() {
 
         // Update lens selector
         lensSelectorLayout.setCamera(
-            camera, cameraManager.getCameras(cameraMode, camera.cameraFacing)
+            camera, model.getCameras(cameraMode, camera.cameraFacing)
         )
     }
 
@@ -1835,7 +1756,7 @@ open class CameraActivity : AppCompatActivity() {
             }
 
             CameraMode.VIDEO -> {
-                if (!cameraManager.videoRecordingAvailable()) {
+                if (!model.videoRecordingAvailable()) {
                     Snackbar.make(
                         cameraModeSelectorLayout,
                         R.string.camcorder_unsupported_toast,
@@ -1879,7 +1800,11 @@ open class CameraActivity : AppCompatActivity() {
 
         (flipCameraButton.drawable as AnimatedVectorDrawable).start()
 
-        camera = cameraManager.getNextCamera(camera, cameraMode)
+        camera = model.getNextCamera(camera, cameraMode) ?: run {
+            noCamera()
+            return
+        }
+
         sharedPreferences.lastCameraFacing = camera.cameraFacing
 
         bindCameraUseCases()
@@ -1903,8 +1828,16 @@ open class CameraActivity : AppCompatActivity() {
             val supportedVideoFrameRates = videoQualityInfo?.supportedFrameRates ?: setOf()
             val supportedVideoDynamicRanges = videoQualityInfo?.supportedDynamicRanges ?: setOf()
 
+            val supportedFlashModes = cameraMode.supportedFlashModes.intersect(
+                camera.supportedFlashModes
+            )
+
+            // Hide the button if the only available mode is off,
+            // we want the user to know if any other mode is being used
+            flashButton.isVisible =
+                supportedFlashModes.size != 1 || supportedFlashModes.first() != FlashMode.OFF
             flashButton.isEnabled =
-                cameraMode != CameraMode.PHOTO || cameraState == CameraState.IDLE
+                cameraState == CameraState.IDLE || cameraMode == CameraMode.VIDEO
             effectButton.isVisible = cameraMode == CameraMode.PHOTO &&
                     photoCaptureMode != ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG &&
                     camera.supportedExtensionModes.size > 1
@@ -1955,21 +1888,20 @@ open class CameraActivity : AppCompatActivity() {
         }
 
         val currentVideoQuality = videoQuality
-        val newVideoQuality = supportedVideoQualities.toList().sortedWith { a, b ->
+
+        supportedVideoQualities.toList().sortedWith { a, b ->
             listOf(Quality.SD, Quality.HD, Quality.FHD, Quality.UHD).let {
                 it.indexOf(a) - it.indexOf(b)
             }
-        }.next(currentVideoQuality)
+        }.next(currentVideoQuality)?.takeUnless {
+            it == currentVideoQuality
+        }?.let {
+            videoQuality = it
 
-        if (newVideoQuality == currentVideoQuality) {
-            return
+            sharedPreferences.videoQuality = it
+
+            bindCameraUseCases()
         }
-
-        videoQuality = newVideoQuality
-
-        sharedPreferences.videoQuality = videoQuality
-
-        bindCameraUseCases()
     }
 
     private fun cycleVideoFrameRate() {
@@ -1998,29 +1930,29 @@ open class CameraActivity : AppCompatActivity() {
         }
 
         val currentVideoDynamicRange = videoDynamicRange
-        val newVideoDynamicRange =
-            supportedVideoDynamicRanges.toList().sorted().next(currentVideoDynamicRange)
 
-        if (newVideoDynamicRange == currentVideoDynamicRange) {
-            return
+        supportedVideoDynamicRanges.toList().sorted().next(currentVideoDynamicRange)?.takeUnless {
+            it == currentVideoDynamicRange
+        }?.let {
+            videoDynamicRange = it
+
+            sharedPreferences.videoDynamicRange = it
+
+            bindCameraUseCases()
         }
-
-        videoDynamicRange = newVideoDynamicRange
-
-        sharedPreferences.videoDynamicRange = videoDynamicRange
-
-        bindCameraUseCases()
     }
 
     /**
      * Set the specified grid mode, also updating the icon
      */
     private fun cycleGridMode() {
-        gridMode = gridMode.next()
+        gridMode.next()?.let {
+            gridMode = it
 
-        sharedPreferences.lastGridMode = gridMode
+            sharedPreferences.lastGridMode = it
 
-        changeGridMode(gridMode)
+            changeGridMode(gridMode)
+        }
     }
 
     private fun changeGridMode(gridMode: GridMode) {
@@ -2031,9 +1963,11 @@ open class CameraActivity : AppCompatActivity() {
      * Toggle timer mode
      */
     private fun toggleTimerMode() {
-        timerMode = timerMode.next()
+        timerMode.next()?.let {
+            timerMode = it
 
-        sharedPreferences.timerMode = timerMode
+            sharedPreferences.timerMode = it
+        }
     }
 
     /**
@@ -2047,48 +1981,52 @@ open class CameraActivity : AppCompatActivity() {
 
     /**
      * Cycle flash mode
+     * @param forceTorch Whether force torch mode should be toggled
+     * @return false if called with an unsupported configuration, true otherwise
      */
-    private fun cycleFlashMode() {
-        val currentFlashMode = flashMode
-        val newFlashMode = when (cameraMode) {
-            CameraMode.PHOTO -> FlashMode.PHOTO_ALLOWED_MODES.next(currentFlashMode)
-            CameraMode.VIDEO -> FlashMode.VIDEO_ALLOWED_MODES.next(currentFlashMode)
-            else -> FlashMode.OFF
+    private fun cycleFlashMode(forceTorch: Boolean): Boolean {
+        // Long-press is supported only on photo mode and if torch mode is available
+        val forceTorchAvailable = cameraMode == CameraMode.PHOTO
+                && camera.supportedFlashModes.contains(FlashMode.TORCH)
+        if (forceTorch && !forceTorchAvailable) {
+            return false
         }
 
-        changeFlashMode(newFlashMode)
-
-        when (cameraMode) {
-            CameraMode.PHOTO -> sharedPreferences.photoFlashMode = newFlashMode
-            CameraMode.VIDEO -> sharedPreferences.videoFlashMode = newFlashMode
-            else -> {}
-        }
-
-        if (cameraMode == CameraMode.PHOTO && !sharedPreferences.forceTorchHelpShown &&
-            !forceTorchSnackbar.isShownOrQueued
-        ) {
-            forceTorchSnackbar.show()
-        }
-    }
-
-    /**
-     * Toggle torch mode on photo mode.
-     */
-    private fun toggleForceTorch() {
         val currentFlashMode = flashMode
 
-        val newFlashMode = if (currentFlashMode != FlashMode.TORCH) {
-            FlashMode.TORCH
-        } else {
-            sharedPreferences.photoFlashMode
+        when (forceTorch) {
+            true -> when (currentFlashMode) {
+                FlashMode.TORCH -> sharedPreferences.photoFlashMode.takeIf {
+                    supportedFlashModes.contains(it)
+                } ?: FlashMode.OFF
+
+                else -> FlashMode.TORCH
+            }
+
+            else -> supportedFlashModes.toList().next(currentFlashMode)
+        }?.let {
+            changeFlashMode(it)
+
+            if (!forceTorch) {
+                when (cameraMode) {
+                    CameraMode.PHOTO -> sharedPreferences.photoFlashMode = it
+                    CameraMode.VIDEO -> sharedPreferences.videoFlashMode = it
+                    else -> {}
+                }
+            }
         }
 
-        changeFlashMode(newFlashMode)
-
+        // Check if we should show the force torch suggestion
         if (!sharedPreferences.forceTorchHelpShown) {
-            // The user figured it out by themself
-            sharedPreferences.forceTorchHelpShown = true
+            if (forceTorch) {
+                // The user figured it out by themself
+                sharedPreferences.forceTorchHelpShown = true
+            } else if (!forceTorchSnackbar.isShownOrQueued) {
+                forceTorchSnackbar.show()
+            }
         }
+
+        return true
     }
 
     /**
@@ -2124,17 +2062,16 @@ open class CameraActivity : AppCompatActivity() {
         }
 
         val currentExtensionMode = photoEffect
-        val newExtensionMode = camera.supportedExtensionModes.next(currentExtensionMode)
 
-        if (newExtensionMode == currentExtensionMode) {
-            return
+        camera.supportedExtensionModes.next(currentExtensionMode)?.takeUnless {
+            it == currentExtensionMode
+        }?.let {
+            photoEffect = it
+
+            sharedPreferences.photoEffect = it
+
+            bindCameraUseCases()
         }
-
-        photoEffect = newExtensionMode
-
-        sharedPreferences.photoEffect = photoEffect
-
-        bindCameraUseCases()
     }
 
     private fun setBrightScreen(brightScreen: Boolean) {
@@ -2149,14 +2086,30 @@ open class CameraActivity : AppCompatActivity() {
         levelerView.isVisible = enabled
     }
 
-    private fun updateGalleryButton() {
+    private fun updateGalleryButton(uri: Uri?, fromCapture: Boolean) {
         runOnUiThread {
-            val uri = sharedPreferences.lastSavedUri?.takeIf {
-                MediaStoreUtils.fileExists(this, it)
-            }
             val keyguardLocked = keyguardManager.isKeyguardLocked
-            if (uri != null && (!keyguardLocked || tookSomething)) {
-                galleryButton.load(uri) {
+
+            galleryButtonIconImageView.setImageResource(
+                when (keyguardLocked) {
+                    true -> R.drawable.ic_lock
+                    false -> R.drawable.ic_image
+                }
+            )
+
+            if (keyguardLocked != fromCapture) {
+                return@runOnUiThread
+            }
+
+            galleryButtonUri = uri
+
+            // When keyguard is unlocked, we want media from MediaStore, else we only trust the
+            // ones coming from the capture
+            uri?.also {
+                galleryButtonPreviewImageView.isVisible = true
+                galleryButtonIconImageView.isVisible = false
+
+                galleryButtonPreviewImageView.load(uri) {
                     decoderFactory(VideoFrameDecoder.Factory())
                     crossfade(true)
                     scale(Scale.FILL)
@@ -2164,28 +2117,25 @@ open class CameraActivity : AppCompatActivity() {
                     error(R.drawable.ic_image)
                     fallback(R.drawable.ic_image)
                     listener(object : ImageRequest.Listener {
-                        override fun onSuccess(request: ImageRequest, result: SuccessResult) {
-                            galleryButton.setPadding(0)
-                            super.onSuccess(request, result)
-                        }
-
                         override fun onError(request: ImageRequest, result: ErrorResult) {
-                            galleryButton.setPadding(15.px)
                             super.onError(request, result)
+
+                            Log.e(LOG_TAG, "Failed to load gallery button icon", result.throwable)
+
+                            galleryButtonPreviewImageView.isVisible = false
+                            galleryButtonIconImageView.isVisible = true
                         }
 
                         override fun onCancel(request: ImageRequest) {
-                            galleryButton.setPadding(15.px)
+                            galleryButtonPreviewImageView.isVisible = false
+                            galleryButtonIconImageView.isVisible = true
                             super.onCancel(request)
                         }
                     })
                 }
-            } else if (keyguardLocked) {
-                galleryButton.setPadding(15.px)
-                galleryButton.setImageResource(R.drawable.ic_lock)
-            } else {
-                galleryButton.setPadding(15.px)
-                galleryButton.setImageResource(R.drawable.ic_image)
+            } ?: run {
+                galleryButtonIconImageView.isVisible = true
+                galleryButtonPreviewImageView.isVisible = false
             }
         }
     }
@@ -2208,53 +2158,65 @@ open class CameraActivity : AppCompatActivity() {
     }
 
     private fun openGallery() {
-        sharedPreferences.lastSavedUri.let { uri ->
-            // If the Uri is null, attempt to launch non secure-gallery
-            if (uri == null) {
+        lifecycleScope.launch {
+            // secureMediaUris will be cleared if keyguard is unlocked
+            // or none of the items were found.
+            withContext(Dispatchers.IO) {
+                updateSecureMediaUris(keyguardManager.isKeyguardLocked)
+            }
+
+            if (keyguardManager.isKeyguardLocked) {
+                // In this state the only thing we can do is launch a secure review intent
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+                    && secureMediaUris.isNotEmpty()
+                ) {
+                    val intent = Intent(
+                        MediaStore.ACTION_REVIEW_SECURE, secureMediaUris.first()
+                    ).apply {
+                        flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        if (secureMediaUris.size > 1) {
+                            clipData = ClipData.newUri(
+                                contentResolver, null, secureMediaUris[1]
+                            ).apply {
+                                for (i in 2 until secureMediaUris.size) {
+                                    addItem(contentResolver, ClipData.Item(secureMediaUris[i]))
+                                }
+                            }
+                        }
+                    }
+                    runCatching {
+                        startActivity(intent)
+                        return@launch
+                    }
+                }
+            }
+
+            galleryButtonUri?.also { uri ->
+                // Try to open the Uri in the non secure gallery
                 dismissKeyguardAndRun {
-                    val intent = Intent().apply {
-                        action = Intent.ACTION_VIEW
+                    mutableListOf<String>().apply {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            add(MediaStore.ACTION_REVIEW)
+                        }
+                        add(Intent.ACTION_VIEW)
+                    }.forEach {
+                        val intent = Intent(it, uri).apply {
+                            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        }
+                        runCatching {
+                            startActivity(intent)
+                            return@dismissKeyguardAndRun
+                        }
+                    }
+                }
+            } ?: run {
+                // If the Uri is null, attempt to launch non secure-gallery
+                dismissKeyguardAndRun {
+                    val intent = Intent(Intent.ACTION_VIEW).apply {
                         type = "image/*"
                     }
                     runCatching {
                         startActivity(intent)
-                        return@dismissKeyguardAndRun
-                    }
-                }
-                return
-            }
-
-            // This ensure we took at least one photo/video in the secure use-case
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
-                tookSomething && keyguardManager.isKeyguardLocked
-            ) {
-                val intent = Intent().apply {
-                    action = MediaStore.ACTION_REVIEW_SECURE
-                    data = uri
-                    flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                }
-                runCatching {
-                    startActivity(intent)
-                    return
-                }
-            }
-
-            // Try to open the Uri in the non secure gallery
-            dismissKeyguardAndRun {
-                mutableListOf<String>().apply {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        add(MediaStore.ACTION_REVIEW)
-                    }
-                    add(Intent.ACTION_VIEW)
-                }.forEach {
-                    val intent = Intent().apply {
-                        action = it
-                        data = uri
-                        flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                    }
-                    runCatching {
-                        startActivity(intent)
-                        return@dismissKeyguardAndRun
                     }
                 }
             }
@@ -2344,15 +2306,6 @@ open class CameraActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    private fun hideStatusBars() {
-        val windowInsetsController = getInsetsController(window, window.decorView)
-        // Configure the behavior of the hidden system bars
-        windowInsetsController.systemBarsBehavior =
-            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        // Hide the status bar
-        windowInsetsController.hide(WindowInsetsCompat.Type.statusBars())
-    }
-
     private fun startTimerAndRun(runnable: () -> Unit) {
         // Allow forcing timer if requested by the assistant
         val timerModeSeconds =
@@ -2418,9 +2371,21 @@ open class CameraActivity : AppCompatActivity() {
     }
 
     /**
-     * Zoom in by a power of 2.
+     * Show a toast warning the user that no camera is available and close the activity.
      */
-    private fun zoomIn() {
+    private fun noCamera() {
+        Toast.makeText(
+            this, R.string.error_no_cameras_available, Toast.LENGTH_LONG
+        ).show()
+        finish()
+    }
+
+    /**
+     * Apply the specified zoom smoothly. The value will be automatically clamped
+     * between min and max.
+     * @param zoomRatio The zoom ratio to apply
+     */
+    private fun smoothZoom(zoomRatio: Float) {
         val acquired = zoomGestureMutex.tryLock()
         if (!acquired) {
             return
@@ -2430,57 +2395,190 @@ open class CameraActivity : AppCompatActivity() {
 
         ValueAnimator.ofFloat(
             zoomState.zoomRatio,
-            zoomState.zoomRatio.nextPowerOfTwo().takeUnless {
-                it > zoomState.maxZoomRatio
-            } ?: zoomState.maxZoomRatio
+            zoomRatio.coerceIn(zoomState.minZoomRatio, zoomState.maxZoomRatio)
         ).apply {
             addUpdateListener {
                 cameraController.setZoomRatio(it.animatedValue as Float)
             }
-            addListener(onEnd = {
-                zoomGestureMutex.unlock()
-            })
+            addListener(
+                onEnd = {
+                    zoomGestureMutex.unlock()
+                }
+            )
         }.start()
+    }
+
+    /**
+     * Reset the zoom to 1.0x (value relative to the lens, not of the FOV).
+     */
+    private fun resetZoom() = smoothZoom(1f)
+
+    /**
+     * Zoom in by a power of 2.
+     */
+    private fun zoomIn() = cameraController.zoomState.value?.zoomRatio?.let {
+        smoothZoom(it.nextPowerOfTwo())
     }
 
     /**
      * Zoom out by a power of 2.
      */
-    private fun zoomOut() {
-        val acquired = zoomGestureMutex.tryLock()
-        if (!acquired) {
-            return
-        }
-
-        val zoomState = cameraController.zoomState.value ?: return
-
-        ValueAnimator.ofFloat(
-            zoomState.zoomRatio,
-            zoomState.zoomRatio.previousPowerOfTwo().takeUnless {
-                it < zoomState.minZoomRatio
-            } ?: zoomState.minZoomRatio
-        ).apply {
-            addUpdateListener {
-                cameraController.setZoomRatio(it.animatedValue as Float)
-            }
-            addListener(onEnd = {
-                zoomGestureMutex.unlock()
-            })
-        }.start()
+    private fun zoomOut() = cameraController.zoomState.value?.zoomRatio?.let {
+        smoothZoom(it.previousPowerOfTwo())
     }
 
     /**
-     * Use this function when the app must be closed due to emergency reasons.
-     * It will try to save whatever is going on and close the app.
+     * Method called when a new media have been successfully captured and saved.
+     * Keep track of media items captured while in a secure lockscreen state so that they
+     * can be passed to the gallery for viewing without unlocking the device. However, if the
+     * keyguard is no longer locked, clear any existing URIs, and do not add this one.
      */
-    private fun emergencyClose() {
-        // Stop the recording if there's an active one
-        if (cameraController.isRecording) {
-            videoRecording?.stop()
+    private fun onCapturedMedia(item: Uri?) {
+        updateGalleryButton(item, true)
+
+        if (!keyguardManager.isKeyguardLocked) {
+            secureMediaUris.clear()
+        } else {
+            item?.let {
+                secureMediaUris.add(it)
+            }
+        }
+    }
+
+    /**
+     * If keyguard is not locked, remove any URIs that were stored while in the secure camera state.
+     * Otherwise, remove any URIs that no longer exist.
+     */
+    private fun updateSecureMediaUris(keyguardLocked: Boolean) {
+        if (!keyguardLocked) {
+            secureMediaUris.clear()
+        } else {
+            secureMediaUris.removeIf { !MediaStoreUtils.fileExists(this, it) }
+        }
+    }
+
+    private fun handleHardwareKeyDown(
+        keyCode: Int, event: KeyEvent?
+    ) = HardwareKey.match(keyCode)?.let { (hardwareKey, tempIncrease) ->
+        val increase = when (sharedPreferences.getHardwareKeyInvert(hardwareKey)) {
+            true -> !tempIncrease
+            false -> tempIncrease
         }
 
-        // Close the app
-        finish()
+        val gestureAction = sharedPreferences.getHardwareKeyAction(hardwareKey)
+
+        if (gestureAction.isTwoWayAction && !hardwareKey.isTwoWayKey) {
+            Log.wtf(
+                LOG_TAG,
+                "${gestureAction.name} requires two-way key but ${hardwareKey.name} is not"
+            )
+            return@let true
+        }
+
+        when (gestureAction) {
+            GestureAction.SHUTTER -> {
+                if (cameraMode == CameraMode.VIDEO && shutterButton.isEnabled &&
+                    event?.repeatCount == 0
+                ) {
+                    shutterButton.performClick()
+                }
+                true
+            }
+
+            GestureAction.FOCUS -> {
+                if (event?.repeatCount == 0) {
+                    viewFinderTouchEvent = null
+                    viewFinder.performClick()
+                }
+                true
+            }
+
+            GestureAction.MIC_MUTE -> {
+                if (cameraMode == CameraMode.VIDEO && micButton.isEnabled &&
+                    event?.repeatCount == 0
+                ) {
+                    toggleMicrophoneMode()
+                }
+                true
+            }
+
+            GestureAction.ZOOM -> {
+                when (increase) {
+                    true -> zoomIn()
+                    false -> zoomOut()
+                }
+                true
+            }
+
+            GestureAction.DEFAULT -> {
+                if (hardwareKey.supportsDefault) {
+                    super.onKeyDown(keyCode, event)
+                } else {
+                    Log.wtf(
+                        LOG_TAG,
+                        "Got GestureAction.DEFAULT for ${hardwareKey.name} which doesn't support it"
+                    )
+                    true
+                }
+            }
+
+            GestureAction.NOTHING -> {
+                // Do nothing
+                true
+            }
+        }
+    }
+
+    private fun handleHardwareKeyUp(
+        keyCode: Int, event: KeyEvent?
+    ) = HardwareKey.match(keyCode)?.let { (hardwareKey, _) ->
+        val gestureAction = sharedPreferences.getHardwareKeyAction(hardwareKey)
+
+        if (gestureAction.isTwoWayAction && !hardwareKey.isTwoWayKey) {
+            Log.wtf(
+                LOG_TAG,
+                "${gestureAction.name} requires two-way key but ${hardwareKey.name} is not"
+            )
+            return@let true
+        }
+
+        when (sharedPreferences.getHardwareKeyAction(hardwareKey)) {
+            GestureAction.SHUTTER -> {
+                if (cameraMode != CameraMode.QR && shutterButton.isEnabled) {
+                    shutterButton.performClick()
+                }
+                true
+            }
+
+            GestureAction.FOCUS -> {
+                true
+            }
+
+            GestureAction.MIC_MUTE -> {
+                true
+            }
+
+            GestureAction.ZOOM -> {
+                true
+            }
+
+            GestureAction.DEFAULT -> {
+                if (hardwareKey.supportsDefault) {
+                    super.onKeyDown(keyCode, event)
+                } else {
+                    Log.wtf(
+                        LOG_TAG,
+                        "Got GestureAction.DEFAULT for ${hardwareKey.name} which doesn't support it"
+                    )
+                    true
+                }
+            }
+
+            GestureAction.NOTHING -> {
+                // Do nothing
+                true
+            }
+        }
     }
 
     companion object {

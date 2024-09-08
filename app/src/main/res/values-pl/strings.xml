@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-     SPDX-FileCopyrightText: 2022-2023 The LineageOS Project
+     SPDX-FileCopyrightText: 2022-2024 The LineageOS Project
      SPDX-License-Identifier: Apache-2.0
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
@@ -37,9 +37,35 @@
     <string name="qr_copy_description">Skopiuj do schowka</string>
     <string name="qr_icon_description">Ikona</string>
     <string name="qr_share_description">Udostępnij</string>
-    <string name="qr_wifi_title">Połącz z tą siecią Wi-Fi</string>
+    <string name="qr_no_app_available_for_action">Brak aplikacji do obsługi tego działania</string>
+    <string name="qr_address_title">Dodaj kontakt</string>
+    <string name="qr_address_content_description">Dodaj kontakt</string>
+    <string name="qr_calendar_title">Dodaj wydarzenie do kalendarza</string>
+    <string name="qr_calendar_content_description">Dodaj to wydarzenie do kalendarza</string>
     <string name="qr_dpp_description">Skonfiguruj to urządzenie</string>
+    <string name="qr_email_title">Wyślij nową wiadomość e-mail</string>
+    <string name="qr_email_content_description">Utwórz nową wiadomość e-mail dla określonych adresów e-mail</string>
+    <string name="qr_fido_title">Użyj hasła</string>
+    <string name="qr_fido_content_description">Obsłuż ten kod QR FIDO</string>
+    <string name="qr_geo_title">Otwórz tę lokalizację</string>
+    <string name="qr_geo_content_description">Otwórz tę lokalizację</string>
+    <string name="qr_isbn_title">Wyszukaj ten numer ISBN</string>
+    <string name="qr_isbn_content_description">Wyszukaj ten ISBN na isbnsearch.org</string>
+    <string name="qr_product_title">Wyszukaj produkt</string>
+    <string name="qr_product_content_description">Wyszukaj ID produktu po kodzie kreskowym</string>
+    <string name="qr_sms_title">Wyślij nowy SMS</string>
+    <string name="qr_sms_content_description">Wyślij nowy SMS do określonych odbiorców</string>
+    <string name="qr_tel_title">Zadzwoń pod numer telefonu</string>
+    <string name="qr_tel_content_description">Zadzwoń pod ten numer telefonu</string>
     <string name="qr_text">Tekst</string>
+    <string name="qr_upi_title">Wybierz aplikację do wykonania płatności</string>
+    <string name="qr_upi_content_description">Otwórz ten adres UPI za pomocą odpowiedniej aplikacji, jeśli jest obsługiwany</string>
+    <string name="qr_uri_title">Otwórz adres URL</string>
+    <string name="qr_uri_content_description">Otwórz ten adres URL za pomocą odpowiedniej aplikacji, jeśli jest obsługiwany</string>
+    <string name="qr_vin_title">Wyszukaj VIN</string>
+    <string name="qr_vin_content_description">Sprawdzenie tego numeru identyfikacyjnego pojazdu (VIN)</string>
+    <string name="qr_wifi_title">Połącz z tą siecią Wi-Fi</string>
+    <string name="qr_wifi_content_description">Dodaj tę sieć Wi-Fi do listy znanych sieci i połącz z nią urządzenie</string>
     <string name="title_activity_settings">Ustawienia</string>
     <string name="general_header">Ogólne</string>
     <string name="photos_header">Zdjęcia</string>
@@ -54,7 +80,19 @@
     <string name="shutter_sound_summary">Odtwarza dźwięk przy przechwytywaniu</string>
     <string name="leveler_title">Poziomica</string>
     <string name="leveler_summary">Wskaźnik pokazujący orientację urządzenia</string>
-    <string name="volume_buttons_action_title">Akcja przycisków głośności</string>
+    <string name="gestures_title">Gesty</string>
+    <string name="single_buttons_title">Pojedyncze przyciski</string>
+    <string name="camera_button_action_title">Funkcja przycisku aparatu</string>
+    <string name="focus_button_action_title">Funkcja przycisku ostrości</string>
+    <string name="mute_button_action_title">Funkcja przycisku wyciszania</string>
+    <string name="volume_buttons_title">Przyciski głośności</string>
+    <string name="volume_buttons_action_title">Funkcja przycisków głośności</string>
+    <string name="volume_buttons_invert_title">Odwróć przyciski głośności</string>
+    <string name="volume_buttons_invert_summary">Odwraca działanie podgłaśniania i ściszania</string>
+    <string name="zoom_buttons_title">Przyciski powiększenia</string>
+    <string name="zoom_buttons_action_title">Funkcja przycisków powiększania</string>
+    <string name="zoom_buttons_invert_title">Odwróć przyciski powiększania</string>
+    <string name="zoom_buttons_invert_summary">Odwraca działanie przybliżania i oddalania</string>
     <string name="photo_capture_mode_title">Tryb fotografowania</string>
     <string name="photo_capture_mode_maximize_quality">Maksymalizuj jakość</string>
     <string name="photo_capture_mode_minimize_latency">Minimalizuj opóźnienie</string>
@@ -120,9 +158,12 @@
     <string name="error_do_not_disturb_mode_enabled">Tryb \"Nie przeszkadzać\" jest włączony. Wyłącz go i otwórz aplikację ponownie.</string>
     <string name="error_unknown_recoverable">Znaleziono nieznany błąd do odzyskania. Prosimy zgłosić go programistom.</string>
     <string name="error_unknown_critical">Znaleziono krytyczny, nieznany błąd. Prosimy zgłosić go programistom.</string>
+    <string name="error_no_cameras_available">Nie znaleziono żadnego aparatu w urządzeniu, dlatego nie można uruchomić aplikacji.</string>
     <string name="gesture_action_shutter">Migawka</string>
+    <string name="gesture_action_focus">Ostrość</string>
+    <string name="gesture_action_mic_mute">Wyciszanie mikrofonu</string>
     <string name="gesture_action_zoom">Powiększenie</string>
-    <string name="gesture_action_volume">Głośność</string>
+    <string name="gesture_action_default">Domyślnie dla systemu Android</string>
     <string name="gesture_action_nothing">Nic nie rób</string>
     <string name="thermal_status_moderate">Umiarkowane dławienie termiczne, upewnij się, że urządzenie nie jest narażone na bezpośrednie działanie promieni słonecznych.</string>
     <string name="thermal_status_severe">W przypadku poważnego dławienia termicznego zaleca się zaprzestanie używania urządzenia aż do jego ostygnięcia.</string>

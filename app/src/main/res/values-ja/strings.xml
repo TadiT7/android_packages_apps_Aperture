@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-     SPDX-FileCopyrightText: 2022-2023 The LineageOS Project
+     SPDX-FileCopyrightText: 2022-2024 The LineageOS Project
      SPDX-License-Identifier: Apache-2.0
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
@@ -37,16 +37,56 @@
     <string name="qr_copy_description">クリップボードにコピー</string>
     <string name="qr_icon_description">アイコン</string>
     <string name="qr_share_description">共有</string>
-    <string name="qr_wifi_title">この Wi-Fi ネットワークに接続</string>
+    <string name="qr_no_app_available_for_action">このアクションを処理できるアプリがありません</string>
+    <string name="qr_address_title">連絡先を追加</string>
+    <string name="qr_address_content_description">連絡先を追加します</string>
+    <string name="qr_calendar_title">予定をカレンダーに追加</string>
+    <string name="qr_calendar_content_description">この予定をカレンダーに追加します</string>
     <string name="qr_dpp_description">このデバイスを設定します</string>
+    <string name="qr_email_title">新しいメールを送信</string>
+    <string name="qr_email_content_description">指定されたメールアドレスへの新しいメールを作成します</string>
+    <string name="qr_fido_title">パスキーを使用</string>
+    <string name="qr_fido_content_description">この FIDO の QR コードを処理します</string>
+    <string name="qr_geo_title">この場所を開く</string>
+    <string name="qr_geo_content_description">この場所を開きます</string>
+    <string name="qr_isbn_title">この ISBN を検索</string>
+    <string name="qr_isbn_content_description">isbnsearch.org でこの ISBN を検索します</string>
+    <string name="qr_product_title">商品検索</string>
+    <string name="qr_product_content_description">この商品 ID バーコードを検索します</string>
+    <string name="qr_sms_title">新しい SMS を送信</string>
+    <string name="qr_sms_content_description">指定された受信者に新しい SMS を送信します</string>
+    <string name="qr_tel_title">電話番号に発信</string>
+    <string name="qr_tel_content_description">電話番号に発信します</string>
     <string name="qr_text">テキスト</string>
+    <string name="qr_upi_title">決済アプリを選択</string>
+    <string name="qr_upi_content_description">対応している場合は、この UPI リンクを適切なアプリで開きます</string>
+    <string name="qr_uri_title">URL を開く</string>
+    <string name="qr_uri_content_description">対応しているアプリでこの URL を開きます</string>
+    <string name="qr_vin_title">VIN 検索</string>
+    <string name="qr_vin_content_description">車両識別番号 (VIN) を検索します</string>
+    <string name="qr_wifi_title">この Wi-Fi ネットワークに接続</string>
+    <string name="qr_wifi_content_description">この Wi-Fi ネットワークを既知のネットワークのリストに追加し、デバイスに接続します</string>
     <string name="title_activity_settings">設定</string>
     <string name="general_header">全般</string>
     <string name="photos_header">写真</string>
     <string name="video_header">ビデオ</string>
     <string name="advanced_header">詳細設定</string>
+    <string name="bright_screen_title">画面を明るくする</string>
     <string name="bright_screen_summary" formatted="false">明るさを100%に固定</string>
+    <string name="shutter_sound_summary">撮影j時に音を鳴らします</string>
+    <string name="gestures_title">ジェスチャー</string>
+    <string name="single_buttons_title">シングルボタン</string>
+    <string name="camera_button_action_title">カメラボタンの動作</string>
+    <string name="focus_button_action_title">フォーカスボタンの動作</string>
+    <string name="mute_button_action_title">ミュートボタンの動作</string>
+    <string name="volume_buttons_title">音量ボタン</string>
     <string name="volume_buttons_action_title">音量ボタンの動作</string>
+    <string name="volume_buttons_invert_title">音量ボタンを反転</string>
+    <string name="volume_buttons_invert_summary">音量の上下の動作を反転させます</string>
+    <string name="zoom_buttons_title">ズームボタン</string>
+    <string name="zoom_buttons_action_title">ズームボタンの動作</string>
+    <string name="zoom_buttons_invert_title">ズームボタンを反転</string>
+    <string name="zoom_buttons_invert_summary">ズームイン/ズームアウトを反転させます</string>
     <string name="enable_zsl_title">利用可能な場合は ZSL を有効にする</string>
     <string name="enable_zsl_summary">カメラが対応している場合、ゼロシャッターラグモードを使用します。このモードでは写真のエフェクトは無効になります。このモードは実験的であることに注意してください。</string>
     <string name="photo_ffc_mirror_title">フロントカメラを反転</string>
@@ -54,7 +94,7 @@
     <string name="video_stabilization_title">動画の安定化を有効にする</string>
     <string name="video_stabilization_summary">利用可能な場合、録画中にカメラの手ぶれを減らすためにビデオの安定化を有効化します</string>
     <string name="video_mirror_mode_title">ビデオミラーリングを有効化</string>
-    <string name="processing_title">処理中</string>
+    <string name="processing_title">処理</string>
     <string name="processing_info">フォトモードでは、ZSLモードを使用する場合デフォルトとオフ値のみが考慮されます。 ビデオモードの場合、デフォルト、オフと高速の値のみが考慮されます。</string>
     <string name="edge_mode_title">シャープニング</string>
     <string name="edge_mode_summary">エッジを強調し、撮影した画像の鮮明さとディテールを向上させます。</string>
@@ -106,6 +146,10 @@
     <string name="error_do_not_disturb_mode_enabled">Do Not Disturb が有効になっています。無効にしてアプリを再度開いてください。</string>
     <string name="error_unknown_recoverable">回復可能な不明なエラーが見つかりました。開発者に報告してください。</string>
     <string name="error_unknown_critical">重大な不明なエラーが見つかりました。開発者に報告してください。</string>
+    <string name="error_no_cameras_available">デバイスにカメラが見つかりませんでした。アプリを起動できません。</string>
+    <string name="gesture_action_focus">フォーカス</string>
+    <string name="gesture_action_mic_mute">マイクのミュート</string>
+    <string name="gesture_action_default">Android のデフォルト</string>
     <string name="thermal_status_moderate">中程度のサーマルスロットリング中です。デバイスを直射日光下で使わないでください。</string>
     <string name="thermal_status_severe">重度のサーマルスロットリング中です。デバイスを少し冷やすことをおすすめします。</string>
     <string name="thermal_status_critical">致命的なサーマルスロットリング中です。アプリはこの後すぐに終了される可能性があります。</string>

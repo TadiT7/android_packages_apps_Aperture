@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-     SPDX-FileCopyrightText: 2022-2023 The LineageOS Project
+     SPDX-FileCopyrightText: 2022-2024 The LineageOS Project
      SPDX-License-Identifier: Apache-2.0
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
@@ -37,9 +37,35 @@
     <string name="qr_copy_description">Copia al porta-retalls</string>
     <string name="qr_icon_description">Icona</string>
     <string name="qr_share_description">Comparteix</string>
-    <string name="qr_wifi_title">Connecta a aquesta xarxa Wi-Fi</string>
+    <string name="qr_no_app_available_for_action">No hi ha cap aplicació disponible per gestionar aquesta acció</string>
+    <string name="qr_address_title">Afegeix contacte</string>
+    <string name="qr_address_content_description">Afegeix contacte</string>
+    <string name="qr_calendar_title">Afegeix esdeveniment al calendari</string>
+    <string name="qr_calendar_content_description">Afegeix aquest esdeveniment al calendari</string>
     <string name="qr_dpp_description">Configura aquest dispositiu</string>
+    <string name="qr_email_title">Envia un nou correu</string>
+    <string name="qr_email_content_description">Escriviu un correu nou als correus especificats</string>
+    <string name="qr_fido_title">Utilitza la clau d\'accés</string>
+    <string name="qr_fido_content_description">Gestioneu aquest codi QR FIDO</string>
+    <string name="qr_geo_title">Obre aquesta ubicació</string>
+    <string name="qr_geo_content_description">Obre aquesta ubicació</string>
+    <string name="qr_isbn_title">Consulteu aquest ISBN</string>
+    <string name="qr_isbn_content_description">Cerca aquest ISBN a isbnsearch.org</string>
+    <string name="qr_product_title">Cerca el producte</string>
+    <string name="qr_product_content_description">Cerqueu aquest codi de barres d\'ID de producte</string>
+    <string name="qr_sms_title">Envia un nou SMS</string>
+    <string name="qr_sms_content_description">Envia un nou SMS als destinataris indicats</string>
+    <string name="qr_tel_title">Truca al número de telèfon</string>
+    <string name="qr_tel_content_description">Truca al número de telèfon</string>
     <string name="qr_text">Text</string>
+    <string name="qr_upi_title">Trieu una aplicació per pagar</string>
+    <string name="qr_upi_content_description">Obre aquest enllaç UPI amb l\'aplicació adequada si s\'admet</string>
+    <string name="qr_uri_title">Obre l\'enllaç</string>
+    <string name="qr_uri_content_description">Obre aquesta URL amb l\'aplicació adequada si s\'admet</string>
+    <string name="qr_vin_title">Cerca el VIN</string>
+    <string name="qr_vin_content_description">Cerca aquest número d\'identificació del vehicle (VIN)</string>
+    <string name="qr_wifi_title">Connecta a aquesta xarxa Wi-Fi</string>
+    <string name="qr_wifi_content_description">Afegeix aquesta xarxa Wi-Fi a la llista de xarxes conegudes i connecteu-hi el dispositiu</string>
     <string name="title_activity_settings">Configuració</string>
     <string name="general_header">General</string>
     <string name="photos_header">Fotos</string>
@@ -54,7 +80,19 @@
     <string name="shutter_sound_summary">Reprodueix un so durant la captura</string>
     <string name="leveler_title">Nivelador</string>
     <string name="leveler_summary">Indicador que mostra l\'orientació del dispositiu</string>
+    <string name="gestures_title">Gestos</string>
+    <string name="single_buttons_title">Botons individuals</string>
+    <string name="camera_button_action_title">Acció del botó de la càmera</string>
+    <string name="focus_button_action_title">Acció del botó de focus</string>
+    <string name="mute_button_action_title">Acció del botó de silenci</string>
+    <string name="volume_buttons_title">Botons de volum</string>
     <string name="volume_buttons_action_title">Acció dels botons de volum</string>
+    <string name="volume_buttons_invert_title">Inverteix els botons de volum</string>
+    <string name="volume_buttons_invert_summary">Inverteix el comportament d\'apujar i abaixar el volum</string>
+    <string name="zoom_buttons_title">Botons de zoom</string>
+    <string name="zoom_buttons_action_title">Acció dels botons de zoom</string>
+    <string name="zoom_buttons_invert_title">Inverteix els botons de zoom</string>
+    <string name="zoom_buttons_invert_summary">Inverteix el comportament d\'ampliar i allunyar</string>
     <string name="photo_capture_mode_title">Mode de captura</string>
     <string name="photo_capture_mode_maximize_quality">Maximitza la qualitat</string>
     <string name="photo_capture_mode_minimize_latency">Minimitza la latència</string>
@@ -120,9 +158,12 @@
     <string name="error_do_not_disturb_mode_enabled">El mode No Molestis està activat. Desactiveu-lo i torneu a obrir l\'aplicació.</string>
     <string name="error_unknown_recoverable">S\'ha trobat un error desconegut recuperable. Informeu als desenvolupadors.</string>
     <string name="error_unknown_critical">S\'ha trobat un error crític desconegut. Informeu als desenvolupadors.</string>
+    <string name="error_no_cameras_available">No s\'han trobat càmeres al dispositiu, no es pot iniciar l\'aplicació.</string>
     <string name="gesture_action_shutter">Obturador</string>
+    <string name="gesture_action_focus">Enfocament</string>
+    <string name="gesture_action_mic_mute">Silencia el micròfon</string>
     <string name="gesture_action_zoom">Amplia</string>
-    <string name="gesture_action_volume">Volum</string>
+    <string name="gesture_action_default">Per defecte d\'Android</string>
     <string name="gesture_action_nothing">Res</string>
     <string name="thermal_status_moderate">L\'acceleració tèrmica és moderada, assegureu-vos que el dispositiu no estigui sota la llum solar directa.</string>
     <string name="thermal_status_severe">L\'acceleració tèrmica és important, es recomana deixar que el dispositiu es refredi una mica.</string>

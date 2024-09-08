@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022-2023 The LineageOS Project
+ * SPDX-FileCopyrightText: 2022-2024 The LineageOS Project
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -18,7 +18,7 @@ apply {
 
 buildscript {
     repositories {
-        maven("https://raw.githubusercontent.com/lineage-next/gradle-generatebp/v1.3/.m2")
+        maven("https://raw.githubusercontent.com/lineage-next/gradle-generatebp/v1.9/.m2")
     }
 
     dependencies {
@@ -27,13 +27,13 @@ buildscript {
 }
 
 android {
-    compileSdk = 33
+    compileSdk = 34
     namespace = "org.lineageos.aperture"
 
     defaultConfig {
         applicationId = "org.lineageos.aperture"
         minSdk = 26
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
     }
@@ -68,23 +68,27 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
+    lint {
+        lintConfig = file("lint.xml")
+    }
 }
 
 dependencies {
     // Align versions of all Kotlin components
-    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.9.0"))
 
     implementation("androidx.core:core-ktx:1.10.1")
     implementation("androidx.activity:activity-ktx:1.7.2")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("androidx.exifinterface:exifinterface:1.3.6")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
-    implementation("androidx.preference:preference:1.2.0")
+    implementation("androidx.exifinterface:exifinterface:1.3.7")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
+    implementation("androidx.preference:preference:1.2.1")
     implementation("com.google.android.material:material:1.9.0")
 
     // CameraX core library using the camera2 implementation
-    val cameraxVersion = "1.4.0-alpha01"
+    val cameraxVersion = "1.5.0-alpha01"
     // The following line is optional, as the core library is included indirectly by camera-camera2
     implementation("androidx.camera:camera-core:${cameraxVersion}")
     implementation("androidx.camera:camera-camera2:${cameraxVersion}")
@@ -94,6 +98,8 @@ dependencies {
     implementation("androidx.camera:camera-video:${cameraxVersion}")
     // If you want to additionally use the CameraX View class
     implementation("androidx.camera:camera-view:${cameraxVersion}")
+    // If you want to additionally use the CameraX Viewfinder class
+    implementation("androidx.camera.viewfinder:viewfinder-core:1.4.0-alpha08")
     // If you want to additionally use the CameraX Extensions library
     implementation("androidx.camera:camera-extensions:${cameraxVersion}")
 
@@ -105,11 +111,12 @@ dependencies {
     implementation("androidx.media3:media3-ui:$media3Version")
 
     // ZXing
-    implementation("com.google.zxing:core:3.5.2")
+    implementation("com.google.zxing:core:3.5.3")
+    implementation("io.github.zxing-cpp:android:2.2.0")
 
     // Coil
-    implementation("io.coil-kt:coil:2.2.2")
-    implementation("io.coil-kt:coil-video:2.2.2")
+    implementation("io.coil-kt:coil:2.4.0")
+    implementation("io.coil-kt:coil-video:2.4.0")
 }
 
 configure<GenerateBpPluginExtension> {
@@ -122,8 +129,10 @@ configure<GenerateBpPluginExtension> {
                         !module.group.startsWith("androidx.media3") &&
                         module.name != "lifecycle-common"
             }
+
             module.group.startsWith("org.jetbrains") -> true
             module.group == "com.google.auto.value" -> true
+            module.group == "com.google.errorprone" -> true
             module.group == "com.google.guava" -> true
             module.group == "junit" -> true
             else -> false

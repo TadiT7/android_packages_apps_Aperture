@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-     SPDX-FileCopyrightText: 2022-2023 The LineageOS Project
+     SPDX-FileCopyrightText: 2022-2024 The LineageOS Project
      SPDX-License-Identifier: Apache-2.0
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
@@ -37,9 +37,33 @@
     <string name="qr_copy_description">Zkopírovat do schránky</string>
     <string name="qr_icon_description">Ikona</string>
     <string name="qr_share_description">Sdílet</string>
-    <string name="qr_wifi_title">Připojit k této Wi-Fi síti</string>
+    <string name="qr_no_app_available_for_action">Není k dispozici použitelná aplikace</string>
+    <string name="qr_address_title">Přidat kontakt</string>
+    <string name="qr_address_content_description">Přidat kontakt</string>
+    <string name="qr_calendar_title">Přidat událost do kalendáře</string>
+    <string name="qr_calendar_content_description">Přidat událost do kalendáře</string>
     <string name="qr_dpp_description">Nastavit toto zařízení</string>
+    <string name="qr_email_title">Poslat nový e-mail</string>
+    <string name="qr_email_content_description">Vytvořit nový e-mailu pro zadané e-maily</string>
+    <string name="qr_fido_title">Použít passkey</string>
+    <string name="qr_fido_content_description">Zpracovávat tento FIDO QR kód</string>
+    <string name="qr_geo_title">Otevřít toto umístění</string>
+    <string name="qr_geo_content_description">Otevřít toto umístění</string>
+    <string name="qr_isbn_title">Vyhledat tento ISBN</string>
+    <string name="qr_isbn_content_description">Hledat tento ISBN na isbnsearch.org</string>
+    <string name="qr_product_title">Vyhledat produkt</string>
+    <string name="qr_product_content_description">Vyhledat tento identifikační kód produktu</string>
+    <string name="qr_sms_title">Odeslat novou SMS</string>
+    <string name="qr_sms_content_description">Odeslat novou SMS určeným příjemcům</string>
+    <string name="qr_tel_title">Volat telefonní číslo</string>
+    <string name="qr_tel_content_description">Volat telefonní číslo</string>
     <string name="qr_text">Text</string>
+    <string name="qr_uri_title">Otevřít URL</string>
+    <string name="qr_uri_content_description">Otevřete tuto adresu URL s příslušnou aplikací, pokud je podporována</string>
+    <string name="qr_vin_title">Vyhledat VIN</string>
+    <string name="qr_vin_content_description">Vyhledat toto identifikační číslo vozidla (VIN)</string>
+    <string name="qr_wifi_title">Připojit k této Wi-Fi síti</string>
+    <string name="qr_wifi_content_description">Přidejte tuto síť Wi-Fi do seznamu známých sítí a připojte k ní zařízení</string>
     <string name="title_activity_settings">Nastavení</string>
     <string name="general_header">Obecné</string>
     <string name="photos_header">Fotky</string>
@@ -120,9 +144,9 @@
     <string name="error_do_not_disturb_mode_enabled">Režim Nerušit je povolen. Vypněte jej a znovu otevřete aplikaci.</string>
     <string name="error_unknown_recoverable">Byla nalezena neznámá chyba, kterou lze obnovit. Nahlaste ji prosím vývojářům.</string>
     <string name="error_unknown_critical">Byla nalezena neznámá kritická chyba. Nahlaste ji prosím vývojářům.</string>
+    <string name="error_no_cameras_available">Na zařízení nebyly nalezeny žádné fotoaparáty, nelze spustit aplikaci.</string>
     <string name="gesture_action_shutter">Závěrka</string>
     <string name="gesture_action_zoom">Přiblížení</string>
-    <string name="gesture_action_volume">Hlasitost</string>
     <string name="gesture_action_nothing">Žádná akce</string>
     <string name="thermal_status_moderate">Mírné tepelné omezení, ujistěte se, že zařízení není na přímém slunečním světle.</string>
     <string name="thermal_status_severe">Silné tepelné omezení, doporučuje se nechat zařízení trochu vychladnout.</string>

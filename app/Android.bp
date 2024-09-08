@@ -1,5 +1,5 @@
 //
-// SPDX-FileCopyrightText: 2022-2023 The LineageOS Project
+// SPDX-FileCopyrightText: 2022-2024 The LineageOS Project
 // SPDX-License-Identifier: Apache-2.0
 //
 
@@ -16,8 +16,17 @@ android_app {
     resource_dirs: ["src/main/res"],
     manifest: "src/main/AndroidManifest.xml",
 
-    sdk_version: "33",
+    sdk_version: "34",
     product_specific: true,
+
+    use_embedded_native_libs: true,
+
+    required: [
+        "ApertureFrameworksBaseOverlay",
+        "ApertureLensLauncher",
+        "initial-package-stopped-states-org.lineageos.aperture",
+        "preinstalled-packages-org.lineageos.aperture",
+    ],
 
     static_libs: [
         // DO NOT EDIT THIS SECTION MANUALLY
@@ -34,21 +43,37 @@ android_app {
         "Aperture_androidx.camera_camera-lifecycle",
         "Aperture_androidx.camera_camera-video",
         "Aperture_androidx.camera_camera-view",
+        "Aperture_androidx.camera.viewfinder_viewfinder-core",
         "Aperture_androidx.camera_camera-extensions",
         "Aperture_androidx.media3_media3-exoplayer",
         "Aperture_androidx.media3_media3-ui",
         "Aperture_com.google.zxing_core",
+        "Aperture_io.github.zxing-cpp_android",
         "Aperture_io.coil-kt_coil",
         "Aperture_io.coil-kt_coil-video",
     ],
+
     optional_uses_libs: [
         "androidx.camera.extensions.impl"
-    ],
-    required: [
-        "ApertureLensLauncher",
     ],
 
     optimize: {
         proguard_flags_files: ["proguard-rules.pro"],
     },
+}
+
+prebuilt_etc {
+    name: "initial-package-stopped-states-org.lineageos.aperture",
+    product_specific: true,
+    sub_dir: "sysconfig",
+    src: "initial-package-stopped-states-org.lineageos.aperture.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "preinstalled-packages-org.lineageos.aperture",
+    product_specific: true,
+    sub_dir: "sysconfig",
+    src: "preinstalled-packages-org.lineageos.aperture.xml",
+    filename_from_src: true,
 }

@@ -16,7 +16,9 @@ import androidx.core.content.ContextCompat
  */
 class PermissionsUtils(private val context: Context) {
     fun mainPermissionsGranted() = permissionsGranted(mainPermissions)
-    fun locationPermissionsGranted() = permissionsGranted(locationPermissions)
+    fun locationPermissionsGranted() = locationPermissions.any {
+        permissionGranted(it)
+    }
 
     private fun permissionGranted(permission: String) =
         ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
@@ -34,6 +36,7 @@ class PermissionsUtils(private val context: Context) {
             Manifest.permission.RECORD_AUDIO,
         ).apply {
             if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+                add(Manifest.permission.READ_EXTERNAL_STORAGE)
                 add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
             }
         }.toTypedArray()
@@ -45,11 +48,5 @@ class PermissionsUtils(private val context: Context) {
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION,
         )
-
-        /**
-         * All the permissions that the app might use
-         */
-        val allPermissions = mainPermissions
-            .plus(locationPermissions)
     }
 }

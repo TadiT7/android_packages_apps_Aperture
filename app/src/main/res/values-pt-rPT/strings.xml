@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-     SPDX-FileCopyrightText: 2022-2023 The LineageOS Project
+     SPDX-FileCopyrightText: 2022-2024 The LineageOS Project
      SPDX-License-Identifier: Apache-2.0
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
@@ -37,9 +37,9 @@
     <string name="qr_copy_description">Copiar para a área de transferência</string>
     <string name="qr_icon_description">Ícone</string>
     <string name="qr_share_description">Partilhar</string>
-    <string name="qr_wifi_title">Ligar a esta rede Wi-Fi</string>
     <string name="qr_dpp_description">Configurar este dispositivo</string>
     <string name="qr_text">Texto</string>
+    <string name="qr_wifi_title">Ligar a esta rede Wi-Fi</string>
     <string name="title_activity_settings">Definições</string>
     <string name="general_header">Gerais</string>
     <string name="photos_header">Fotografias</string>
