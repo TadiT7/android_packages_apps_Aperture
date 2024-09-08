@@ -5,7 +5,7 @@
 -->
 <resources>
     <!-- Enable auxiliary cameras selector. -->
-    <bool name="config_enableAuxCameras">false</bool>
+    <bool name="config_enableAuxCameras">true</bool>
 
     <!-- List of ID of auxiliary cameras that must be ignored by the app. -->
     <string-array name="config_ignoredAuxCameraIds">
@@ -18,7 +18,7 @@
          one or more aux cameras as a standalone camera device.
          Note that you will probably need to add
          more camera IDs to ignoreCameraIds. -->
-    <bool name="config_ignoreLogicalAuxCameras">true</bool>
+    <bool name="config_ignoreLogicalAuxCameras">false</bool>
 
     <!-- List of ID of camera devices that doesn't advertise
          REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE yet are
@@ -55,7 +55,16 @@
              </string-array>
     -->
     <string-array name="config_additionalVideoConfigurations">
-        <!-- No additional configuration is added by default. -->
+        <item>0</item> <item>sd|hd|fhd|uhd</item> <item>24|30|60|120</item>
+        <item>1</item> <item>sd|hd|fhd|uhd</item> <item>24|30|60|120</item>
+        <item>2</item> <item>sd|hd|fhd|uhd</item> <item>24|30|60|120</item>
+        <item>3</item> <item>sd|hd|fhd|uhd</item> <item>24|30|60|120</item>
+        <item>4</item> <item>sd|hd|fhd|uhd</item> <item>24|30|60|120</item>
+        <item>5</item> <item>sd|hd|fhd|uhd</item> <item>24|30|60|120</item>
+        <item>6</item> <item>sd|hd|fhd|uhd</item> <item>24|30|60|120</item>
+        <item>7</item> <item>sd|hd|fhd|uhd</item> <item>24|30|60|120</item>
+        <item>8</item> <item>sd|hd|fhd|uhd</item> <item>24|30|60|120</item>
+        <item>9</item> <item>sd|hd|fhd|uhd</item> <item>24|30|60|120</item>
     </string-array>
 
     <!-- An array of triplets made of (camera ID, approximate zoom ratio, exact zoom ratio).
