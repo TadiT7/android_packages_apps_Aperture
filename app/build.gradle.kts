@@ -17,7 +17,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "org.lineageos.aperture"
+        applicationId = "org.codeaurora.snapcam"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
@@ -43,7 +43,7 @@ android {
 
         debug {
             // Append .dev to package name so we won't conflict with AOSP build.
-            applicationIdSuffix = ".dev"
+            // applicationIdSuffix = ".dev"
         }
     }
 
