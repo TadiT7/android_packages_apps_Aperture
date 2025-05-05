@@ -44,6 +44,20 @@ android {
         debug {
             // Append .dev to package name so we won't conflict with AOSP build.
             // applicationIdSuffix = ".dev"
+
+            // Enables code shrinking, obfuscation, and optimization.
+            isMinifyEnabled = true
+
+            // Enables resource shrinking.
+            isShrinkResources = true
+
+            // Includes the default ProGuard rules files.
+            setProguardFiles(
+                listOf(
+                    getDefaultProguardFile("proguard-android-optimize.txt"),
+                    "proguard-rules.pro"
+                )
+            )
         }
     }
 
